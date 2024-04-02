@@ -12,7 +12,7 @@ The Wordle Clone project will be developed using modern web development technolo
 
 - **Authentication:** Firebase Authentication functionality will be integrated to handle user authentication securely. This will enable users to sign up, log in, and securely access their accounts using various authentication providers such as email/password, Google, or social media accounts.
 
-- **Deployment:** Firebase Hosting will be used for deployment at the end of the project. Firebase Hosting provides a scalable and reliable platform for hosting web applications, ensuring high availability and fast content delivery to users worldwide.
+- **Deployment:** Firebase Hosting will be used for deployment at the end of the project. Firebase Hosting provides a scalable and reliable platform for hosting web applications, ensuring high availability and fast content delivery to users.
 
 - **Development:** Next.js will be configured with TypeScript to provide type safety and enhanced developer experience. React components will be built using Next.js's robust frontend capabilities.
 
@@ -26,7 +26,7 @@ The project will include the following features:
 
 - **Combination of Games:** Incorporating elements from Wordle, Ordel, Stepdle, and potentially Worldle to provide a unique and engaging gameplay experience.
   
-- **User Authentication:** Users will be able to create accounts and log in using a username. Authentication will be handled securely using JWT tokens.
+- **User Authentication:** Users will be able to create accounts and log in using a username.
 
 - **Statistics Tracking:** The application will track various statistics for each user, including streaks, number of attempts used, time taken to complete challenges, and total number of games played.
 
