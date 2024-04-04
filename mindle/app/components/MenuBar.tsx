@@ -22,14 +22,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function MenuBar() {
-  const { user, signOutUser } = useAuth();
+  const { user, signOutUser, userLoaded } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
 
   const handleSignOut = async () => {
     try {
       await signOutUser();
-      router.push("./sign-in");
+      router.push("/sign-in");
+      console.log("bashash");
     } catch (error) {
       console.error(error);
     }
@@ -63,7 +64,7 @@ export default function MenuBar() {
     ),
   };
 
-  return !user ? (
+  return !userLoaded ? (
     <></>
   ) : (
     <Navbar
@@ -155,7 +156,7 @@ export default function MenuBar() {
               color="default"
               // name="Jason Hughes"
               size="sm"
-              src={user.photoURL || ""}
+              src={user?.photoURL || ""}
             />
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
@@ -165,7 +166,7 @@ export default function MenuBar() {
               onClick={() => router.push("./profile")}
             >
               <p className="font-semibold">Signed in as</p>
-              <p className="font-semibold">{user.email}</p>
+              <p className="font-semibold">{user?.email}</p>
             </DropdownItem>
             {/* <DropdownItem
               key="settings"
@@ -173,7 +174,7 @@ export default function MenuBar() {
             >
               Settings
             </DropdownItem> */}
-            <DropdownItem key="logout" color="danger" onClick={signOutUser}>
+            <DropdownItem key="logout" color="danger" onClick={handleSignOut}>
               Log Out
             </DropdownItem>
           </DropdownMenu>
@@ -225,7 +226,7 @@ export default function MenuBar() {
             className="w-full hover:cursor-pointer"
             color="danger"
             size="lg"
-            onClick={signOutUser}
+            onClick={handleSignOut}
           >
             Log Out
           </Link>

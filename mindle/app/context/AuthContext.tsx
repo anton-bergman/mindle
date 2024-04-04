@@ -10,9 +10,7 @@ import {
   signOut,
   onAuthStateChanged,
   GoogleAuthProvider,
-  FacebookAuthProvider,
   GithubAuthProvider,
-  Auth,
 } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import firebase from "firebase/compat/app";
@@ -21,11 +19,10 @@ import { config } from "process";
 interface AuthContextType {
   user: firebase.User | null;
   loading: boolean;
+  userLoaded: boolean | null;
   signInWithGoogle: () => Promise<void>;
   signInWithGitHub: () => Promise<void>;
   signOutUser: () => Promise<void>;
-  auth: Auth | null;
-  config: Object | null;
 }
 
 interface AuthProps {
@@ -39,13 +36,14 @@ const AuthContext = createContext<AuthContextType>({
   signInWithGoogle: () => Promise.resolve(),
   signInWithGitHub: () => Promise.resolve(),
   signOutUser: () => Promise.resolve(),
-  auth: null,
-  config: null,
+  userLoaded: null,
 });
 
 export const AuthContextProvider = ({ children }: AuthProps) => {
   const [user, setUser] = useState<firebase.User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [userLoaded, setUserLoaded] = useState<boolean | null>(null);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser as firebase.User | null);
@@ -53,6 +51,16 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
     });
     return () => unsubscribe();
   }, [user]);
+
+  useEffect(() => {
+    if (user && !loading) {
+      setUserLoaded(true);
+    } else if (!user && !loading) {
+      setUserLoaded(false);
+    } else {
+      setUserLoaded(null);
+    }
+  }, [user, loading]);
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -76,8 +84,7 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
         signInWithGoogle,
         signInWithGitHub,
         signOutUser,
-        auth,
-        config,
+        userLoaded,
       }}
     >
       {children}

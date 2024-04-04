@@ -24,10 +24,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <NextUIProvider>
           <main className="dark text-foreground bg-background">
-            <AuthContextProvider>
-              <MenuBar />
-              {children}
-            </AuthContextProvider>
+            <AuthContextProvider>{children}</AuthContextProvider>
           </main>
         </NextUIProvider>
       </body>
