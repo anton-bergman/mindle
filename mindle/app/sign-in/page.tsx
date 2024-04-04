@@ -2,6 +2,9 @@
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
+import { FcGoogle } from "react-icons/fc";
+import { Button, ButtonGroup } from "@nextui-org/react";
+import { VscGithub } from "react-icons/vsc";
 
 export default function SignIn() {
   const { user, loading, signInWithGoogle, signInWithGitHub } = useAuth();
@@ -34,18 +37,23 @@ export default function SignIn() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
       <h1 className="text-4xl font-bold mb-8">Mindle</h1>
-      <button
-        className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md mb-4"
+      <Button
+        className="bg-white text-google_text shadow-black"
+        variant="shadow"
+        startContent={<FcGoogle />}
         onClick={() => handleSignIn("google")}
       >
         Sign in with Google
-      </button>
-      <button
-        className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md mb-4"
+      </Button>
+
+      <Button
+        className="m-5 bg-github_btn shadow-black"
+        variant="shadow"
+        startContent={<VscGithub />}
         onClick={() => handleSignIn("github")}
       >
         Sign in with GitHub
-      </button>
+      </Button>
     </div>
   );
 }

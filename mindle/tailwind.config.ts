@@ -14,6 +14,8 @@ const config: Config = {
         primary_background: "#171717",
         secondary_menubar: "#282828",
         text_color: "#FFFFFF",
+        google_text: "#858585",
+        github_btn: "#333333",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
