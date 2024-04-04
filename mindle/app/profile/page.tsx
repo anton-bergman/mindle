@@ -6,12 +6,12 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import { useRouter } from "next/navigation";
 
 export default function Profile() {
-  const { user, loading, signInWithGoogle, signOutWithGoogle } = useAuth();
+  const { user, loading, signOutUser } = useAuth();
   const router = useRouter();
 
   const handleSignOut = async () => {
     try {
-      await signOutWithGoogle();
+      await signOutUser();
       router.push("./sign-in");
     } catch (error) {
       console.error(error);
