@@ -12,6 +12,8 @@ const config: Config = {
     extend: {
       colors: {
         primary_background: "#171717",
+        secondary_menubar: "#282828",
+        text_color: "#FFFFFF",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
@@ -19,7 +21,9 @@ const config: Config = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
     },
+    fontFamily: {},
   },
+  darkMode: "class",
   plugins: [nextui()],
 };
 export default config;
