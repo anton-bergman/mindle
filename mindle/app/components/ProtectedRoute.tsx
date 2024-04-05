@@ -8,12 +8,13 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+  const { user, loading, userLoaded } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("./sign-in");
+    console.log("userLoaded: ", userLoaded);
+    if (userLoaded === false) {
+      router.push("/sign-in");
     }
   }, [user, loading, router]);
 

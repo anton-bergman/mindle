@@ -24,7 +24,6 @@ export default function SignIn() {
         default:
           throw new Error(`Unsupported provider: ${provider}`);
       }
-      await signInWithGoogle();
     } catch (error) {
       console.error(error);
     }
@@ -32,13 +31,12 @@ export default function SignIn() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push("./profile");
+      router.push("auth/profile");
     }
   }, [loading, router, user]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
-      {/* <h1 className="text-4xl font-bold mb-8">Mindle</h1> */}
       <Image
         className="m-3"
         src={mindleLogo}
