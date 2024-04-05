@@ -215,11 +215,11 @@ export default function MenuBar() {
             Leaderboard
           </Link>
         </NavbarMenuItem>
-        <NavbarMenuItem key="settings">
-          {/* <Link className="w-full" color="foreground" href="#" size="lg">
+        {/* <NavbarMenuItem key="settings">
+          <Link className="w-full" color="foreground" href="#" size="lg">
             Settings
-          </Link> */}
-        </NavbarMenuItem>
+          </Link>
+        </NavbarMenuItem> */}
         <NavbarMenuItem key="logout">
           <Link
             className="w-full hover:cursor-pointer"
