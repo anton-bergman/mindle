@@ -149,6 +149,10 @@ export default function MenuBar() {
       <NavbarContent as="div" justify="end">
         <Dropdown placement="bottom-end" className="bg-secondary_menubar">
           <DropdownTrigger>
+            {/* TODO: Fix the originalProps-error
+                Seem to be some known error with the nextUI component
+                https://github.com/nextui-org/nextui/issues/2593
+            */}
             <Avatar
               isBordered
               as="button"
@@ -158,6 +162,12 @@ export default function MenuBar() {
               size="sm"
               src={user?.photoURL || ""}
             />
+            {/* <Button
+              className="transition-transform"
+              color="default"
+              // name="Jason Hughes"
+              size="sm"
+            /> */}
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
             <DropdownItem

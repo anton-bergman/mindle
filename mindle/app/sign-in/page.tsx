@@ -3,13 +3,14 @@ import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
-import { Button, ButtonGroup } from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
 import { VscGithub } from "react-icons/vsc";
 import Image from "next/image";
 import mindleLogo from "../../public/images/mindle_logo_and_text.png";
 
 export default function SignIn() {
-  const { user, loading, signInWithGoogle, signInWithGitHub } = useAuth();
+  const { user, loading, userLoaded, signInWithGoogle, signInWithGitHub } =
+    useAuth();
   const router = useRouter();
 
   const handleSignIn = async (provider: String) => {
@@ -30,10 +31,10 @@ export default function SignIn() {
   };
 
   useEffect(() => {
-    if (!loading && user) {
+    if (userLoaded) {
       router.push("auth/profile");
     }
-  }, [loading, router, user]);
+  }, [router, userLoaded]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">

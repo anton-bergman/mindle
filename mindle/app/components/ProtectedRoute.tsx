@@ -16,7 +16,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (userLoaded === false) {
       router.push("/sign-in");
     }
-  }, [user, loading, router]);
+  }, [router, userLoaded]);
 
   return loading ? (
     <div className="flex items-center justify-center min-h-screen bg-primary_background">

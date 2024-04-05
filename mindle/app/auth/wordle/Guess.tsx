@@ -1,13 +1,13 @@
 import React from "react";
 
 interface GuessProps {
-  key: number;
+  row: number;
   word: string;
   guess: string;
   isGuessed: boolean;
 }
 
-export default function Guess({ key, word, guess, isGuessed }: GuessProps) {
+export default function Guess({ row, word, guess, isGuessed }: GuessProps) {
   const length: number = word.length;
   return (
     <div className={`mb-4 grid grid-cols-${length} gap-1.5`}>
@@ -30,7 +30,7 @@ export default function Guess({ key, word, guess, isGuessed }: GuessProps) {
 
         return (
           <div
-            key={`box-${i}-row${key}`}
+            key={`box-${i}-row${row}`}
             className={`flex  items-center justify-center h-14 w-14 p-0.5 border-2 ${borderColor} rounded font-bold uppercase text-3xl text-white ${backgroundColor}`}
           >
             {guess[i]}
