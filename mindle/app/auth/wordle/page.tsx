@@ -1,36 +1,48 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import ProtectedRoute from "../../components/ProtectedRoute";
-import { Button } from "@nextui-org/react";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  useDisclosure,
+} from "@nextui-org/react";
 import Guess from "./Guess";
 import { vocabulary } from "./vocabulary.json";
+import { useWordleGame } from "./wordle";
 
 export default function Wordle() {
-  const wordLength = 5;
-  //const word = vocabulary[Math.round(Math.random() * vocabulary.length)];
-  //const word = "toast";
-  const [word, setWord] = useState<string>("toast");
-  const maxNumGuesses = 6;
-  const [currentGuess, setCurrentGuess] = useState<number>(0);
-  const [guesses, setGuesses] = useState<Array<string>>(
-    Array(maxNumGuesses).fill("")
-  );
-  const [isGameWon, setIsGameWon] = useState<boolean>(false);
-  const [isGameOver, setIsGameOver] = useState<boolean>(false);
-
-  const initGame = () => {
-    setWord(vocabulary[Math.round(Math.random() * vocabulary.length)]);
-    setCurrentGuess(0);
-    setGuesses(Array(maxNumGuesses).fill(""));
-    setIsGameWon(false);
-    setIsGameOver(false);
-  };
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [triggerAnimation, setTriggerAnimation] = useState<boolean>(false);
+  const [triggerFlipAnimation, setTriggerFlipAnimation] =
+    useState<boolean>(false);
+  const {
+    wordLength,
+    word,
+    currentGuess,
+    guesses,
+    isGameWon,
+    isGameOver,
+    initGame,
+    setCurrentGuess,
+    setGuesses,
+  } = useWordleGame(vocabulary);
 
   const handleKeyup = useCallback(
     (e: KeyboardEvent): void => {
       const submitGuess = (): void => {
         if (vocabulary.includes(guesses[currentGuess])) {
           setCurrentGuess((prev) => prev + 1);
+          setTriggerFlipAnimation(true);
+        } else if (guesses[currentGuess].length < wordLength) {
+          // The submitted guess is not long enough
+          setTriggerAnimation(true);
+        } else {
+          // The submitted guess is not a word in the vocabulary
+          setTriggerAnimation(true);
         }
       };
 
@@ -57,25 +69,8 @@ export default function Wordle() {
       }
       return;
     },
-    [currentGuess, guesses]
+    [currentGuess, guesses, setCurrentGuess, setGuesses, wordLength]
   );
-
-  // const allGuesses = (): string[] => {
-  //   return guesses.slice(0, currentGuess).join("").split("");
-  // };
-
-  // const exactGuesses = (): string[] => {
-  //   return word.split("").filter((letter, i) =>
-  //     guesses
-  //       .slice(0, currentGuess)
-  //       .map((word) => word[i])
-  //       .includes(letter)
-  //   );
-  // };
-
-  // const inexactGuesses = (): string[] => {
-  //   return word.split("").filter((letter) => allGuesses().includes(letter));
-  // };
 
   useEffect(() => {
     window.addEventListener("keyup", handleKeyup);
@@ -86,30 +81,72 @@ export default function Wordle() {
   }, [handleKeyup]);
 
   useEffect(() => {
-    if (guesses[currentGuess - 1] === word) {
-      setIsGameWon(true);
+    if (triggerAnimation) {
+      // The timeout must have the same duration as the animation
+      const timeout = setTimeout(() => {
+        setTriggerAnimation(false);
+      }, 700);
+      return () => clearTimeout(timeout);
     }
-
-    if (currentGuess === maxNumGuesses) {
-      setIsGameOver(true);
-    }
-  }, [currentGuess, guesses, word]);
+  }, [triggerAnimation]);
 
   useEffect(() => {
-    if (isGameWon) {
-      console.log("isGameWon: ", isGameWon);
+    if (isGameWon || isGameOver) {
+      onOpen();
     }
+  }, [isGameWon, isGameOver, onOpen]);
 
-    if (isGameOver) {
-      console.log("isGameOver: ", isGameOver);
+  // TODO: Card-flip animation
+  useEffect(() => {
+    if (triggerFlipAnimation) {
+      // The timeout must have the same duration as the animation
+      const timeout = setTimeout(() => {
+        setTriggerFlipAnimation(false);
+      }, 700);
+      return () => clearTimeout(timeout);
     }
-  }, [isGameOver, isGameWon]);
+  }, [triggerFlipAnimation]);
 
+  // TODO: Card-flip animation | FUNCTIONALITY TEST OF CARD-FLIP
+  // const [isFrontFacing, setIsFrontFacing] = useState<boolean>(true);
+  // const [trigger, setTrigger] = useState<boolean>(false);
+  // const triggerFlip = () => {
+  //   setTrigger(true);
+
+  //   // Reset animation after a certain duration
+  //   setTimeout(() => {
+  //     setTrigger(false);
+  //   }, 1000);
+  // };
   return (
     <ProtectedRoute>
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-64px)] bg-gray-900 text-white">
-        <h1 className="text-4xl font-bold mb-8">Build Wordle here!</h1>
+      {/* TODO: The values 65px must always equal the height of the navbar */}
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-65px)] bg-gray-900 text-white">
+        {/* TODO: Card-flip animation | FUNCTIONALITY TEST OF CARD-FLIP */}
+        {/* <div
+          className={`${
+            trigger ? "animate-vflip" : ""
+          } flex flex-col justify-center items-center m-10 cursor-pointer`}
+          onClick={() => {
+            setIsFrontFacing((prev) => !prev);
+            triggerFlip();
+          }}
+        >
+          <div
+            className={`absolute w-14 h-14 flex justify-center items-center border-2 border-neutral-700 p-0.5 rounded bg-neutral-900 transition-opacity duration-0 delay-[250ms] ${
+              isFrontFacing ? "" : "opacity-0"
+            } ${trigger ? "animate-vflip" : ""}`}
+          ></div>
+          <div
+            className={`absolute w-14 h-14 flex justify-center items-center border-2 border-green-700 p-0.5 rounded bg-green-700 font-bold uppercase text-3xl text-white transition-opacity duration-0 delay-[250ms] ${
+              !isFrontFacing ? "" : "opacity-0"
+            } ${trigger ? "animate-vflip" : ""}`}
+          >
+            A
+          </div>
+        </div> */}
 
+        <h1 className="text-4xl font-bold mb-8">Build Wordle here!</h1>
         {guesses.map((_, i) => (
           <Guess
             key={i}
@@ -117,13 +154,39 @@ export default function Wordle() {
             word={word}
             guess={guesses[i]}
             isGuessed={i < currentGuess}
+            triggerAnimation={triggerAnimation}
+            currentGuess={currentGuess}
+            triggerGuessAnimation={triggerFlipAnimation}
           />
         ))}
-        {isGameWon && <h1>You won!</h1>}
-        {isGameOver && <h1>You lost!</h1>}
-        {(isGameWon || isGameOver) && (
-          <Button onClick={initGame}>Play Again</Button>
-        )}
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange} className="dark">
+          <ModalContent className="flex flex-col items-center justify-center">
+            {(onClose) => (
+              <>
+                <ModalHeader>
+                  {isGameWon ? <h1>You won!</h1> : <h1>You lost!</h1>}
+                </ModalHeader>
+                <ModalBody className="flex flex-col items-center justify-center mt-2">
+                  <div className="flex flex-row gap-5">
+                    <Button
+                      variant="light"
+                      color="success"
+                      onClick={() => {
+                        initGame();
+                        onClose();
+                      }}
+                    >
+                      Play Again
+                    </Button>
+                    <Button color="danger" variant="light" onPress={onClose}>
+                      Close
+                    </Button>
+                  </div>
+                </ModalBody>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </div>
     </ProtectedRoute>
   );

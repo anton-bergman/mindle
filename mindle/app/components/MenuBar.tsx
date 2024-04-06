@@ -30,7 +30,6 @@ export default function MenuBar() {
     try {
       await signOutUser();
       router.push("/sign-in");
-      console.log("bashash");
     } catch (error) {
       console.error(error);
     }
@@ -174,6 +173,7 @@ export default function MenuBar() {
               key="profile"
               className="h-14 gap-2 data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white"
               onClick={() => router.push("./profile")}
+              textValue="user-signed-in-as"
             >
               <p className="font-semibold">Signed in as</p>
               <p className="font-semibold">{user?.email}</p>
