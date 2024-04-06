@@ -18,7 +18,7 @@ const config: Config = {
         github_btn: "#333333",
       },
       animation: {
-        vflip: "flipVertical 2s",
+        vflip: "flipVertical 1s",
         headShake: "headShake 0.7s",
       },
       keyframes: {

@@ -9,7 +9,7 @@ interface GuessProps {
   triggerAnimation: boolean;
 
   currentGuess: number;
-  triggerGuessAnimation: boolean;
+  triggerFlipAnimation: boolean;
 }
 
 export default function Guess({
@@ -19,8 +19,48 @@ export default function Guess({
   isGuessed,
   triggerAnimation,
   currentGuess,
-  triggerGuessAnimation,
+  triggerFlipAnimation,
 }: GuessProps) {
+  const [triggerStates, setTriggerStates] = useState<boolean[]>(
+    Array(word.length).fill(false)
+  );
+
+  useEffect(() => {
+    if (triggerFlipAnimation) {
+      const timeouts = triggerStates.map((_, index) => {
+        return setTimeout(() => {
+          setTriggerStates((prevTriggerStates) => {
+            const newTriggerStates = [...prevTriggerStates];
+            newTriggerStates[index] = true;
+            if (index > 0) {
+              newTriggerStates[index - 1] = false;
+            }
+            return newTriggerStates;
+          });
+          console.log("triggerStates: ", triggerStates);
+          console.log("index: ", index);
+        }, index * 350); // Adjust this delay as needed
+      });
+
+      // Clear timeouts and reset trigger states
+      // return () => {
+      //   timeouts.forEach((timeout) => clearTimeout(timeout));
+      //   //setTriggerStates([false, false, false, false, false]);
+      // };
+    }
+
+    if (triggerStates[triggerStates.length - 1]) {
+      // Set the last triggerState to false after the animation
+      setTimeout(() => {
+        setTriggerStates((prevTriggerStates) => {
+          const newTriggerStates = [...prevTriggerStates];
+          newTriggerStates[triggerStates.length - 1] = false;
+          return newTriggerStates;
+        });
+      }, 350);
+    }
+  }, [triggerFlipAnimation, triggerStates]);
+
   return (
     <div
       className={`${
@@ -35,41 +75,17 @@ export default function Guess({
       ${word.length === 7 ? "grid-cols-8" : ""}`}
     >
       {new Array(word.length).fill(0).map((_, i) => {
-        const backgroundColor = !isGuessed
-          ? "bg-neutral-900"
-          : guess[i] === word[i]
-          ? "bg-green-700"
-          : word.includes(guess[i])
-          ? "bg-yellow-500"
-          : "bg-neutral-700";
-
-        const borderColor = !isGuessed
-          ? "border-neutral-700"
-          : guess[i] === word[i]
-          ? "border-green-700"
-          : word.includes(guess[i])
-          ? "border-yellow-500"
-          : "border-neutral-700";
-
         return (
-          <div
-            key={`box-${i}-row${row}`}
-            className={`flex  items-center justify-center h-14 w-14 p-0.5 border-2 ${borderColor} rounded font-bold uppercase text-3xl text-white ${backgroundColor}`}
-          >
-            {guess[i]}
-          </div>
-
-          // TODO: Card-flip animation
-          // <Box
-          //   key={i}
-          //   row={row}
-          //   col={i}
-          //   currentGuess={currentGuess}
-          //   word={word}
-          //   guess={guess}
-          //   isGuessed={isGuessed}
-          //   triggerFlipAnimation={triggerGuessAnimation}
-          // />
+          <Box
+            key={i}
+            row={row}
+            col={i}
+            currentGuess={currentGuess}
+            word={word}
+            guess={guess}
+            isGuessed={isGuessed}
+            triggerFlipAnimation={triggerStates[i]}
+          />
         );
       })}
     </div>

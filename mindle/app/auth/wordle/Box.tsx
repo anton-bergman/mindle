@@ -43,16 +43,25 @@ export default function Box({
     ? "border-yellow-500"
     : "border-neutral-700";
   return (
+    // --- WITHOUT vertical-card-flip animation on each box ---
+    // <div
+    //   key={`row-${row}-col${col}`}
+    //   className={`flex  items-center justify-center h-14 w-14 p-0.5 border-2 ${borderColor} rounded font-bold uppercase text-3xl text-white ${backgroundColor}`}
+    // >
+    //   {guess[col]}
+    // </div>
+
+    // --- WITH vertical-card-flip animation on each box ---
     <div
       key={`row-${row}-col-${col}`}
       className={`${
         isGuessed && currentGuess - 1 === row && triggerFlipAnimation
           ? "animate-vflip"
           : ""
-      } flex flex-col justify-center items-center m-10 cursor-pointer`}
+      } flex flex-col justify-center items-center w-14 h-14`}
     >
       <div
-        className={`absolute w-14 h-14 flex justify-center items-center border-2 border-neutral-700 p-0.5 rounded bg-neutral-900 font-bold uppercase text-3xl text-white transition-opacity duration-0 delay-[250ms] ${
+        className={`absolute w-14 h-14 flex justify-center items-center border-2 border-neutral-700 p-0.5 rounded bg-neutral-900 font-bold uppercase text-3xl text-white transition-opacity duration-0 delay-[125ms] ${
           isFrontFacing ? "" : "opacity-0"
         } ${
           isGuessed && currentGuess - 1 === row && triggerFlipAnimation
@@ -63,7 +72,7 @@ export default function Box({
         {guess[col]}
       </div>
       <div
-        className={`absolute w-14 h-14 flex justify-center items-center border-2 ${borderColor} p-0.5 rounded ${backgroundColor} font-bold uppercase text-3xl text-white transition-opacity duration-0 delay-[250ms] ${
+        className={`absolute w-14 h-14 flex justify-center items-center border-2 ${borderColor} p-0.5 rounded ${backgroundColor} font-bold uppercase text-3xl text-white transition-opacity duration-0 delay-[125ms] ${
           !isFrontFacing ? "" : "opacity-0"
         } ${
           isGuessed && currentGuess - 1 === row && triggerFlipAnimation
