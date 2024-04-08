@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useWordle } from "./WordleContext";
 
 interface BoxProps {
   row: number;
   col: number;
-  currentGuess: number;
-  word: string;
   guess: string;
   isGuessed: boolean;
   triggerFlipAnimation: boolean;
@@ -13,19 +12,24 @@ interface BoxProps {
 export default function Box({
   row,
   col,
-  currentGuess,
-  word,
   guess,
   isGuessed,
   triggerFlipAnimation,
 }: BoxProps) {
-  const [isFrontFacing, setIsFrontFacing] = useState<boolean>(true);
+  const [isBoxFrontFacing, setIsBoxFrontFacing] = useState<boolean>(true);
+  const { word, currentGuess } = useWordle();
 
   useEffect(() => {
     if (isGuessed && currentGuess - 1 === row && triggerFlipAnimation) {
-      setIsFrontFacing(false);
+      setIsBoxFrontFacing(false);
     }
-  }, [currentGuess, isGuessed, row, triggerFlipAnimation]);
+  }, [currentGuess, isGuessed, row, setIsBoxFrontFacing, triggerFlipAnimation]);
+
+  useEffect(() => {
+    if (word) {
+      setIsBoxFrontFacing(true);
+    }
+  }, [word]);
 
   const backgroundColor = !isGuessed
     ? "bg-neutral-900"
@@ -62,7 +66,7 @@ export default function Box({
     >
       <div
         className={`absolute w-14 h-14 flex justify-center items-center border-2 border-neutral-700 p-0.5 rounded bg-neutral-900 font-bold uppercase text-3xl text-white transition-opacity duration-0 delay-[125ms] ${
-          isFrontFacing ? "" : "opacity-0"
+          isBoxFrontFacing ? "" : "opacity-0"
         } ${
           isGuessed && currentGuess - 1 === row && triggerFlipAnimation
             ? "animate-vflip"
@@ -73,7 +77,7 @@ export default function Box({
       </div>
       <div
         className={`absolute w-14 h-14 flex justify-center items-center border-2 ${borderColor} p-0.5 rounded ${backgroundColor} font-bold uppercase text-3xl text-white transition-opacity duration-0 delay-[125ms] ${
-          !isFrontFacing ? "" : "opacity-0"
+          !isBoxFrontFacing ? "" : "opacity-0"
         } ${
           isGuessed && currentGuess - 1 === row && triggerFlipAnimation
             ? "animate-vflip"

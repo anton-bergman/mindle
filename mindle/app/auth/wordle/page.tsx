@@ -6,17 +6,17 @@ import {
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
 import Guess from "./Guess";
 import { vocabulary } from "./vocabulary.json";
-import { useWordleGame } from "./wordle";
+import { useWordle } from "./WordleContext";
 
 export default function Wordle() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [triggerAnimation, setTriggerAnimation] = useState<boolean>(false);
+  const [triggerShakeAnimation, setTriggerShakeAnimation] =
+    useState<boolean>(false);
   const [triggerFlipAnimation, setTriggerFlipAnimation] =
     useState<boolean>(false);
   const {
@@ -29,7 +29,7 @@ export default function Wordle() {
     initGame,
     setCurrentGuess,
     setGuesses,
-  } = useWordleGame(vocabulary);
+  } = useWordle();
 
   const handleKeyup = useCallback(
     (e: KeyboardEvent): void => {
@@ -39,10 +39,10 @@ export default function Wordle() {
           setTriggerFlipAnimation(true);
         } else if (guesses[currentGuess].length < wordLength) {
           // The submitted guess is not long enough
-          setTriggerAnimation(true);
+          setTriggerShakeAnimation(true);
         } else {
           // The submitted guess is not a word in the vocabulary
-          setTriggerAnimation(true);
+          setTriggerShakeAnimation(true);
         }
       };
 
@@ -81,22 +81,14 @@ export default function Wordle() {
   }, [handleKeyup]);
 
   useEffect(() => {
-    if (triggerAnimation) {
+    if (triggerShakeAnimation) {
       // The timeout must have the same duration as the animation
       const timeout = setTimeout(() => {
-        setTriggerAnimation(false);
+        setTriggerShakeAnimation(false);
       }, 700);
       return () => clearTimeout(timeout);
     }
-  }, [triggerAnimation]);
-
-  useEffect(() => {
-    if (isGameWon || isGameOver) {
-      setTimeout(() => {
-        onOpen();
-      }, (wordLength + 1) * 350);
-    }
-  }, [isGameWon, isGameOver, onOpen]);
+  }, [triggerShakeAnimation]);
 
   useEffect(() => {
     if (triggerFlipAnimation) {
@@ -108,6 +100,14 @@ export default function Wordle() {
     }
   }, [triggerFlipAnimation]);
 
+  useEffect(() => {
+    if (isGameWon || isGameOver) {
+      setTimeout(() => {
+        onOpen();
+      }, (wordLength + 1) * 350);
+    }
+  }, [isGameWon, isGameOver, onOpen, wordLength]);
+
   return (
     <ProtectedRoute>
       {/* TODO: The values 65px must always equal the height of the navbar */}
@@ -117,11 +117,9 @@ export default function Wordle() {
           <Guess
             key={i}
             row={i}
-            word={word}
             guess={guesses[i]}
             isGuessed={i < currentGuess}
-            triggerAnimation={triggerAnimation}
-            currentGuess={currentGuess}
+            triggerShakeAnimation={triggerShakeAnimation}
             triggerFlipAnimation={triggerFlipAnimation}
           />
         ))}

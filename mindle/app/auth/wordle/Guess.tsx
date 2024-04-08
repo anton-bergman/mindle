@@ -1,26 +1,23 @@
 import React, { useEffect, useState } from "react";
 import Box from "./Box";
+import { useWordle } from "./WordleContext";
 
 interface GuessProps {
   row: number;
-  word: string;
   guess: string;
   isGuessed: boolean;
-  triggerAnimation: boolean;
-
-  currentGuess: number;
+  triggerShakeAnimation: boolean;
   triggerFlipAnimation: boolean;
 }
 
 export default function Guess({
   row,
-  word,
   guess,
   isGuessed,
-  triggerAnimation,
-  currentGuess,
+  triggerShakeAnimation,
   triggerFlipAnimation,
 }: GuessProps) {
+  const { word } = useWordle();
   const [triggerStates, setTriggerStates] = useState<boolean[]>(
     Array(word.length).fill(false)
   );
@@ -37,8 +34,6 @@ export default function Guess({
             }
             return newTriggerStates;
           });
-          console.log("triggerStates: ", triggerStates);
-          console.log("index: ", index);
         }, index * 350); // Adjust this delay as needed
       });
 
@@ -64,7 +59,7 @@ export default function Guess({
   return (
     <div
       className={`${
-        !isGuessed && guess.length > 0 && triggerAnimation
+        !isGuessed && guess.length > 0 && triggerShakeAnimation
           ? "animate-headShake"
           : ""
       } mb-4 grid gap-1.5 ${word.length === 3 ? "grid-cols-3" : ""} 
@@ -80,8 +75,6 @@ export default function Guess({
             key={i}
             row={row}
             col={i}
-            currentGuess={currentGuess}
-            word={word}
             guess={guess}
             isGuessed={isGuessed}
             triggerFlipAnimation={triggerStates[i]}
