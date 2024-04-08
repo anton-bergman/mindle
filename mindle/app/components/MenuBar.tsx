@@ -18,6 +18,7 @@ import { useAuth } from "../context/AuthContext";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import FormatListNumberedRoundedIcon from "@mui/icons-material/FormatListNumberedRounded";
 import TextFieldsRoundedIcon from "@mui/icons-material/TextFieldsRounded";
+import FormatColorTextRoundedIcon from "@mui/icons-material/FormatColorTextRounded";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -51,6 +52,13 @@ export default function MenuBar() {
       <TextFieldsRoundedIcon
         sx={{
           color: "#0070ef",
+        }}
+      />
+    ),
+    ordle: (
+      <FormatColorTextRoundedIcon
+        sx={{
+          color: "#f5a523",
         }}
       />
     ),
@@ -112,6 +120,15 @@ export default function MenuBar() {
               onClick={() => router.push("./wordle")}
             >
               Wordle
+            </DropdownItem>
+            <DropdownItem
+              key="ordle-link"
+              className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white"
+              description="Comming soon."
+              startContent={icons.ordle}
+              onClick={() => router.push("./ordle")}
+            >
+              Ordle
             </DropdownItem>
             <DropdownItem
               key="stepdle-link"
@@ -194,6 +211,11 @@ export default function MenuBar() {
         <NavbarMenuItem key="wordle">
           <Link className="w-full" color="foreground" href="./wordle" size="lg">
             Wordle
+          </Link>
+        </NavbarMenuItem>
+        <NavbarMenuItem key="ordle">
+          <Link className="w-full" color="foreground" href="./ordle" size="lg">
+            Ordle
           </Link>
         </NavbarMenuItem>
         <NavbarMenuItem key="stepdle">
