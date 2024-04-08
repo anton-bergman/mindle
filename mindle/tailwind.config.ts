@@ -16,6 +16,7 @@ const config: Config = {
         text_color: "#FFFFFF",
         google_text: "#858585",
         github_btn: "#333333",
+        keyboard: "#818384",
       },
       animation: {
         vflip: "flipVertical 1s",
@@ -56,6 +57,9 @@ const config: Config = {
       },
     },
     fontFamily: {},
+  },
+  spacing: {
+    "128": "32rem",
   },
   darkMode: "class",
   plugins: [nextui()],

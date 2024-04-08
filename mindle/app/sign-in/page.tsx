@@ -9,8 +9,7 @@ import Image from "next/image";
 import mindleLogo from "../../public/images/mindle_logo_and_text.png";
 
 export default function SignIn() {
-  const { user, loading, userLoaded, signInWithGoogle, signInWithGitHub } =
-    useAuth();
+  const { userLoaded, signInWithGoogle, signInWithGitHub } = useAuth();
   const router = useRouter();
 
   const handleSignIn = async (provider: String) => {

@@ -12,6 +12,7 @@ import {
 import Guess from "./Guess";
 import { vocabulary } from "./vocabulary.json";
 import { useWordle } from "./WordleContext";
+import Keyboard from "./Keyboard";
 
 export default function Wordle() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -62,7 +63,7 @@ export default function Wordle() {
         e.key.match(/^[A-z]$/)
       ) {
         setGuesses((prevGuesses) => {
-          const newGuesses = [...prevGuesses];
+          let newGuesses = [...prevGuesses];
           newGuesses[currentGuess] += e.key.toLowerCase();
           return newGuesses;
         });
@@ -111,8 +112,8 @@ export default function Wordle() {
   return (
     <ProtectedRoute>
       {/* TODO: The values 65px must always equal the height of the navbar */}
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-65px)] bg-gray-900 text-white">
-        <h1 className="text-4xl font-bold mb-8">Build Wordle here!</h1>
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-65px)] bg-gray-900 text-white mt-0.5">
+        {/* <h1 className="text-4xl font-bold mb-8">Build Wordle here!</h1> */}
         {guesses.map((_, i) => (
           <Guess
             key={i}
@@ -151,6 +152,7 @@ export default function Wordle() {
             )}
           </ModalContent>
         </Modal>
+        <Keyboard></Keyboard>
       </div>
     </ProtectedRoute>
   );

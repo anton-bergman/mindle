@@ -17,6 +17,7 @@ interface WordleContextType {
   guesses: Array<string>;
   isGameWon: boolean;
   isGameOver: boolean;
+  language: string;
   initGame: () => void;
   setWordLength: Dispatch<SetStateAction<number>>;
   setWord: Dispatch<SetStateAction<string>>;
@@ -40,6 +41,7 @@ const WordleContext = createContext<WordleContextType>({
   guesses: Array(6).fill(""),
   isGameWon: false,
   isGameOver: false,
+  language: "eng",
   initGame: () => {},
   setWordLength: () => {},
   setWord: () => {},
@@ -60,6 +62,7 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
   );
   const [isGameWon, setIsGameWon] = useState<boolean>(false);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
+  const language = "eng";
 
   const initGame = () => {
     // Initialize game state
@@ -92,6 +95,7 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
         guesses,
         isGameWon,
         isGameOver,
+        language,
         initGame,
         setWordLength,
         setWord,
