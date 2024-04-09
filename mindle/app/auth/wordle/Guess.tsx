@@ -62,7 +62,7 @@ export default function Guess({
         !isGuessed && guess.length > 0 && triggerShakeAnimation
           ? "animate-headShake"
           : ""
-      } mb-4 grid gap-1.5 ${word.length === 3 ? "grid-cols-3" : ""} 
+      } mb-1.5 grid gap-1.5 ${word.length === 3 ? "grid-cols-3" : ""} 
       ${word.length === 4 ? "grid-cols-4" : ""} 
       ${word.length === 5 ? "grid-cols-5" : ""} 
       ${word.length === 6 ? "grid-cols-6" : ""} 
