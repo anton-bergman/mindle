@@ -1,3 +1,4 @@
+import firebase from "firebase/compat/app";
 import {
   useContext,
   createContext,
@@ -13,8 +14,7 @@ import {
   GithubAuthProvider,
 } from "firebase/auth";
 import { auth } from "../firebaseConfig";
-import firebase from "firebase/compat/app";
-import { config } from "process";
+import { initializeUserDocuments } from "../database";
 
 interface AuthContextType {
   user: firebase.User | null;
@@ -54,8 +54,11 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
 
   useEffect(() => {
     if (user && !loading) {
+      // Successfully logged in
       setUserLoaded(true);
+      initializeUserDocuments(user);
     } else if (!user && !loading) {
+      // Access not allowed
       setUserLoaded(false);
     } else {
       setUserLoaded(null);
