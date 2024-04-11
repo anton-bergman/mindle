@@ -86,8 +86,10 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
   useEffect(() => {
     const localStorageGameState: string | null =
       localStorage.getItem("GameState");
+    const todayUnix = new Date().setHours(0, 0, 0, 0);
     if (
       localStorageGameState &&
+      JSON.parse(localStorageGameState).startTime >= todayUnix &&
       JSON.parse(localStorageGameState).currentGuess > 0
     ) {
       const parsedGameState = JSON.parse(
