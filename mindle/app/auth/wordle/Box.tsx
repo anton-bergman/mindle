@@ -17,13 +17,26 @@ export default function Box({
   triggerFlipAnimation,
 }: BoxProps) {
   const [isBoxFrontFacing, setIsBoxFrontFacing] = useState<boolean>(true);
-  const { word, currentGuess } = useWordle();
+  const { word, currentGuess, gameLoadedFromLocalStorage } = useWordle();
 
   useEffect(() => {
-    if (isGuessed && currentGuess - 1 === row && triggerFlipAnimation) {
+    if (
+      isGuessed &&
+      currentGuess - 1 === row &&
+      (triggerFlipAnimation || gameLoadedFromLocalStorage)
+    ) {
+      setIsBoxFrontFacing(false);
+    } else if (isGuessed && row != currentGuess - 1) {
       setIsBoxFrontFacing(false);
     }
-  }, [currentGuess, isGuessed, row, setIsBoxFrontFacing, triggerFlipAnimation]);
+  }, [
+    currentGuess,
+    gameLoadedFromLocalStorage,
+    isGuessed,
+    row,
+    setIsBoxFrontFacing,
+    triggerFlipAnimation,
+  ]);
 
   useEffect(() => {
     if (word) {

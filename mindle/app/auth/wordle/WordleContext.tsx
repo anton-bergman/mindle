@@ -4,11 +4,19 @@ import {
   useState,
   useEffect,
   ReactNode,
-  SetStateAction,
-  Dispatch,
   useCallback,
 } from "react";
 import { vocabulary } from "./vocabulary.json";
+import useLocalStorage from "use-local-storage";
+
+interface LocalStorageGameState {
+  currentGuess: number;
+  guesses: Array<string>;
+  isGameWon: boolean;
+  isGameOver: boolean;
+  startTime: number;
+  endTime: number;
+}
 
 interface WordleContextType {
   wordLength: number;
@@ -23,19 +31,9 @@ interface WordleContextType {
   triggerFlipAnimation: boolean;
   startTime: number;
   endTime: number;
+  gameLoadedFromLocalStorage: boolean;
   initGame: () => void;
   handleKeyup: (e: KeyboardEvent) => void;
-  setWordLength: Dispatch<SetStateAction<number>>;
-  setWord: Dispatch<SetStateAction<string>>;
-  setMaxNumGuesses: Dispatch<SetStateAction<number>>;
-  setCurrentGuess: Dispatch<SetStateAction<number>>;
-  setGuesses: Dispatch<SetStateAction<Array<string>>>;
-  setIsGameWon: Dispatch<SetStateAction<boolean>>;
-  setIsGameOver: Dispatch<SetStateAction<boolean>>;
-  setTriggerShakeAnimation: Dispatch<SetStateAction<boolean>>;
-  setTriggerFlipAnimation: Dispatch<SetStateAction<boolean>>;
-  setStartTime: Dispatch<SetStateAction<number>>;
-  setEndTime: Dispatch<SetStateAction<number>>;
 }
 
 interface WordleProps {
@@ -55,33 +53,25 @@ const WordleContext = createContext<WordleContextType>({
   triggerShakeAnimation: false,
   triggerFlipAnimation: false,
   startTime: -1,
+  gameLoadedFromLocalStorage: false,
   endTime: -1,
   initGame: () => {},
   handleKeyup: (e: KeyboardEvent) => {},
-  setWordLength: () => {},
-  setWord: () => {},
-  setMaxNumGuesses: () => {},
-  setCurrentGuess: () => {},
-  setGuesses: () => {},
-  setIsGameWon: () => {},
-  setIsGameOver: () => {},
-  setTriggerShakeAnimation: () => {},
-  setTriggerFlipAnimation: () => {},
-  setStartTime: () => {},
-  setEndTime: () => {},
 });
 
 export const WordleContextProvider = ({ children }: WordleProps) => {
-  const [wordLength, setWordLength] = useState<number>(vocabulary[0].length);
+  const wordLength = vocabulary[0].length;
+  const maxNumGuesses = 6;
+  const language = "eng";
+
   const [word, setWord] = useState<string>("toast");
-  const [maxNumGuesses, setMaxNumGuesses] = useState<number>(6);
   const [currentGuess, setCurrentGuess] = useState<number>(0);
   const [guesses, setGuesses] = useState<Array<string>>(
     Array(maxNumGuesses).fill("")
   );
   const [isGameWon, setIsGameWon] = useState<boolean>(false);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
-  const language = "eng";
+
   const [triggerShakeAnimation, setTriggerShakeAnimation] =
     useState<boolean>(false);
   const [triggerFlipAnimation, setTriggerFlipAnimation] =
@@ -89,6 +79,42 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
 
   const [startTime, setStartTime] = useState<number>(-1);
   const [endTime, setEndTime] = useState<number>(-1);
+
+  const [gameLoadedFromLocalStorage, setGameLoadedFromLocalStorage] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    const localStorageGameState: string | null =
+      localStorage.getItem("GameState");
+    if (
+      localStorageGameState &&
+      JSON.parse(localStorageGameState).currentGuess > 0
+    ) {
+      const parsedGameState = JSON.parse(
+        localStorageGameState
+      ) as LocalStorageGameState;
+      setGameLoadedFromLocalStorage(true);
+
+      setCurrentGuess(parsedGameState.currentGuess);
+      setGuesses(parsedGameState.guesses);
+      setIsGameOver(parsedGameState.isGameOver);
+      setIsGameWon(parsedGameState.isGameWon);
+      setStartTime(parsedGameState.startTime);
+      setEndTime(parsedGameState.endTime);
+    }
+  }, []);
+
+  const [gameState, setGameState] = useLocalStorage<LocalStorageGameState>(
+    "GameState",
+    {
+      currentGuess: currentGuess,
+      guesses: guesses,
+      isGameWon: isGameWon,
+      isGameOver: isGameOver,
+      startTime: startTime,
+      endTime: endTime,
+    }
+  );
 
   const initGame = () => {
     // Initialize game state
@@ -101,6 +127,7 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
 
   const handleKeyup = useCallback(
     (e: KeyboardEvent): void => {
+      setGameLoadedFromLocalStorage(false);
       const submitGuess = (): void => {
         if (vocabulary.includes(guesses[currentGuess])) {
           setCurrentGuess((prev) => prev + 1);
@@ -137,7 +164,7 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
       }
       return;
     },
-    [currentGuess, guesses, setCurrentGuess, setGuesses, wordLength]
+    [currentGuess, guesses, wordLength]
   );
 
   useEffect(() => {
@@ -146,12 +173,10 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
       // The timeout must have the same duration as the animation
       const timeout = setTimeout(() => {
         setTriggerShakeAnimation(false);
-      }, 700);
+      }, 350);
       return () => clearTimeout(timeout);
     }
-  }, [triggerShakeAnimation]);
 
-  useEffect(() => {
     // useEffect to trigger flip animation
     if (triggerFlipAnimation) {
       // The timeout must have the same duration as the animation
@@ -160,7 +185,7 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
       }, 350);
       return () => clearTimeout(timeout);
     }
-  }, [triggerFlipAnimation]);
+  }, [triggerFlipAnimation, triggerShakeAnimation]);
 
   useEffect(() => {
     if (currentGuess === 1) {
@@ -183,6 +208,26 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
     }
   }, [currentGuess, guesses, maxNumGuesses, word]);
 
+  useEffect(() => {
+    const gameState: LocalStorageGameState = {
+      currentGuess: currentGuess,
+      guesses: guesses,
+      isGameWon: isGameWon,
+      isGameOver: isGameOver,
+      startTime: startTime,
+      endTime: endTime,
+    };
+    setGameState(gameState);
+  }, [
+    currentGuess,
+    endTime,
+    guesses,
+    isGameOver,
+    isGameWon,
+    setGameState,
+    startTime,
+  ]);
+
   return (
     <WordleContext.Provider
       value={{
@@ -198,19 +243,9 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
         triggerFlipAnimation,
         startTime,
         endTime,
+        gameLoadedFromLocalStorage,
         initGame,
         handleKeyup,
-        setWordLength,
-        setWord,
-        setMaxNumGuesses,
-        setCurrentGuess,
-        setGuesses,
-        setIsGameWon,
-        setIsGameOver,
-        setTriggerShakeAnimation,
-        setTriggerFlipAnimation,
-        setStartTime,
-        setEndTime,
       }}
     >
       {children}
