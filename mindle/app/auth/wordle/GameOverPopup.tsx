@@ -26,7 +26,9 @@ export default function GameOverPopup() {
 
     const minutesUnix: number = Math.floor((unixTime / 1000 / 60) % 60);
     const minutesFormatted: string =
-      0 <= hoursUnix && hoursUnix <= 9 ? `0${hoursUnix}` : `${hoursUnix}`;
+      0 <= minutesUnix && minutesUnix <= 9
+        ? `0${minutesUnix}`
+        : `${minutesUnix}`;
 
     const secondsUnix: number = Math.floor((unixTime / 1000) % 60);
     const secondsFormatted: string =
