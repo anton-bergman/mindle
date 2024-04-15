@@ -8,7 +8,7 @@ export default function Keyboard() {
   const swedishLayout: Array<string> = [
     "qwertyuiopå",
     "asdfghjklöä",
-    "zxcvbnm",
+    "0zxcvbnm1",
   ];
   const layout: Array<string> =
     language === "eng"
