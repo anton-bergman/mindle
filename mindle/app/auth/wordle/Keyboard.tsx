@@ -1,6 +1,5 @@
 import React from "react";
 import { useWordle } from "./WordleContext";
-import { func } from "prop-types";
 import BackspaceIcon from "@mui/icons-material/Backspace";
 
 export default function Keyboard() {
@@ -12,7 +11,11 @@ export default function Keyboard() {
     "zxcvbnm",
   ];
   const layout: Array<string> =
-    language === "eng" ? englishLayout : swedishLayout;
+    language === "eng"
+      ? englishLayout
+      : language === "swe"
+      ? swedishLayout
+      : [""];
   const allGuessedLetters: Array<string> = guesses
     .slice(0, currentGuess)
     .join("")
