@@ -26,10 +26,10 @@ export default function Profile() {
       <div>
         <div className="flex flex-row p-5 gap-5">
           <Card className="w-1/2">
-            <CardHeader className="flex flex-row gap-5 justify-between items-center">
+            <CardHeader className="flex flex-row justify-between items-center">
               <Avatar
                 isBordered
-                className="w-24 h-24"
+                className="w-20 h-20"
                 color="default"
                 src={user?.photoURL || ""}
               />

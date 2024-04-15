@@ -4,15 +4,15 @@ import { func } from "prop-types";
 import BackspaceIcon from "@mui/icons-material/Backspace";
 
 export default function Keyboard() {
-  const { word, language, guesses, currentGuess, setGuesses } = useWordle();
+  const { word, language, guesses, currentGuess } = useWordle();
   const englishLayout: Array<string> = ["qwertyuiop", "asdfghjkl", "0zxcvbnm1"];
   const swedishLayout: Array<string> = [
     "qwertyuiopå",
     "asdfghjklöä",
     "0zxcvbnm1",
   ];
-  var layout: Array<string> | null = null;
-  language === "eng" ? (layout = englishLayout) : (layout = swedishLayout);
+  const layout: Array<string> =
+    language === "eng" ? englishLayout : swedishLayout;
   const allGuessedLetters: Array<string> = guesses
     .slice(0, currentGuess)
     .join("")
@@ -49,10 +49,9 @@ export default function Keyboard() {
 
   return (
     <div className="mt-1">
-      {layout.map((row) => (
-        <div className="flex justify-center mt-0 mb-2">
-          {row.split("").map((letter) => {
-            const guessed = guesses.slice(0, Math.max(0, currentGuess));
+      {layout.map((row, i) => (
+        <div key={i} className="flex justify-center mt-0 mb-2">
+          {row.split("").map((letter, j) => {
             const backgroundColor = exactGuess().includes(letter)
               ? "bg-green-700"
               : inexactGuess().includes(letter)
@@ -63,6 +62,7 @@ export default function Keyboard() {
             if (letter === "0") {
               return (
                 <div
+                  key={j}
                   id="keyboard-enter"
                   className={`flex h-14 w-16 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xs font-bold`}
                   onClick={() => handleClick(letter)}
@@ -73,6 +73,7 @@ export default function Keyboard() {
             } else if (letter === "1") {
               return (
                 <div
+                  key={j}
                   className={`flex h-14 w-16 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xs font-bold`}
                   onClick={() => handleClick(letter)}
                 >
@@ -82,6 +83,7 @@ export default function Keyboard() {
             } else {
               return (
                 <div
+                  key={j}
                   className={`flex h-14 w-11 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xl font-bold`}
                   onClick={() => handleClick(letter)}
                 >

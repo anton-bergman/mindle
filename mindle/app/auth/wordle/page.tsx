@@ -1,77 +1,25 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import ProtectedRoute from "../../components/ProtectedRoute";
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  useDisclosure,
-} from "@nextui-org/react";
+import { useEffect, useState } from "react";
 import Guess from "./Guess";
-import { vocabulary } from "./vocabulary.json";
 import { useWordle } from "./WordleContext";
 import Keyboard from "./Keyboard";
+import { useAuth } from "@/app/context/AuthContext";
+import { PlayedGame, addPlayedGame, hasPlayedToday } from "@/app/database";
+import GameOverPopup from "./GameOverPopup";
 
 export default function Wordle() {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [triggerShakeAnimation, setTriggerShakeAnimation] =
-    useState<boolean>(false);
-  const [triggerFlipAnimation, setTriggerFlipAnimation] =
-    useState<boolean>(false);
+  const { user } = useAuth();
   const {
     wordLength,
-    word,
     currentGuess,
     guesses,
     isGameWon,
     isGameOver,
-    initGame,
-    setCurrentGuess,
-    setGuesses,
+    startTime,
+    endTime,
+    handleKeyup,
   } = useWordle();
-
-  const handleKeyup = useCallback(
-    (e: KeyboardEvent): void => {
-      const submitGuess = (): void => {
-        if (vocabulary.includes(guesses[currentGuess])) {
-          setCurrentGuess((prev) => prev + 1);
-          setTriggerFlipAnimation(true);
-        } else if (guesses[currentGuess].length < wordLength) {
-          // The submitted guess is not long enough
-          setTriggerShakeAnimation(true);
-        } else {
-          // The submitted guess is not a word in the vocabulary
-          setTriggerShakeAnimation(true);
-        }
-      };
-
-      if (e.key === "Enter") {
-        submitGuess();
-        return;
-      } else if (e.key === "Backspace") {
-        setGuesses((prevGuesses) => {
-          const newGuesses = [...prevGuesses];
-          newGuesses[currentGuess] = newGuesses[currentGuess].slice(0, -1);
-          return newGuesses;
-        });
-        return;
-      } else if (
-        currentGuess < guesses.length &&
-        guesses[currentGuess].length < wordLength &&
-        e.key.match(/^[A-z]$/)
-      ) {
-        setGuesses((prevGuesses) => {
-          let newGuesses = [...prevGuesses];
-          newGuesses[currentGuess] += e.key.toLowerCase();
-          return newGuesses;
-        });
-      }
-      return;
-    },
-    [currentGuess, guesses, setCurrentGuess, setGuesses, wordLength]
-  );
+  const [playedGame, setPlayedGame] = useState<PlayedGame | null>(null);
 
   useEffect(() => {
     window.addEventListener("keyup", handleKeyup);
@@ -82,78 +30,59 @@ export default function Wordle() {
   }, [handleKeyup]);
 
   useEffect(() => {
-    if (triggerShakeAnimation) {
-      // The timeout must have the same duration as the animation
-      const timeout = setTimeout(() => {
-        setTriggerShakeAnimation(false);
-      }, 700);
-      return () => clearTimeout(timeout);
-    }
-  }, [triggerShakeAnimation]);
+    const handleGameDatabaseUpdate = async () => {
+      if (playedGame === null) {
+        const databaseGame: PlayedGame | null = await hasPlayedToday(
+          `Users/${user!.uid}`,
+          "Games/wordle"
+        );
 
-  useEffect(() => {
-    if (triggerFlipAnimation) {
-      // The timeout must have the same duration as the animation
-      const timeout = setTimeout(() => {
-        setTriggerFlipAnimation(false);
-      }, 350);
-      return () => clearTimeout(timeout);
-    }
-  }, [triggerFlipAnimation]);
-
-  useEffect(() => {
-    if (isGameWon || isGameOver) {
-      setTimeout(() => {
-        onOpen();
-      }, (wordLength + 1) * 350);
-    }
-  }, [isGameWon, isGameOver, onOpen, wordLength]);
+        if ((isGameWon || isGameOver) && databaseGame === null) {
+          const newGame: PlayedGame = {
+            userId: `Users/${user!.uid}`,
+            gameType: "Games/wordle",
+            startTime: startTime,
+            endTime: endTime,
+            numberOfGuesses: currentGuess,
+            wonGame: isGameWon,
+          };
+          const addGameToDB = async () => {
+            await addPlayedGame(newGame);
+          };
+          addGameToDB();
+          setPlayedGame(newGame);
+        } else if (databaseGame) {
+          setPlayedGame(databaseGame);
+        }
+      }
+    };
+    handleGameDatabaseUpdate();
+  }, [
+    isGameWon,
+    isGameOver,
+    wordLength,
+    user,
+    currentGuess,
+    startTime,
+    endTime,
+    playedGame,
+  ]);
 
   return (
-    <ProtectedRoute>
-      {/* TODO: The values 65px must always equal the height of the navbar */}
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-65px)] bg-gray-900 text-white mt-0.5">
-        {/* <h1 className="text-4xl font-bold mb-8">Build Wordle here!</h1> */}
-        {guesses.map((_, i) => (
-          <Guess
-            key={i}
-            row={i}
-            guess={guesses[i]}
-            isGuessed={i < currentGuess}
-            triggerShakeAnimation={triggerShakeAnimation}
-            triggerFlipAnimation={triggerFlipAnimation}
-          />
-        ))}
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} className="dark">
-          <ModalContent className="flex flex-col items-center justify-center">
-            {(onClose) => (
-              <>
-                <ModalHeader>
-                  {isGameWon ? <h1>You won!</h1> : <h1>You lost!</h1>}
-                </ModalHeader>
-                <ModalBody className="flex flex-col items-center justify-center mt-2">
-                  <div className="flex flex-row gap-5">
-                    <Button
-                      variant="light"
-                      color="success"
-                      onClick={() => {
-                        initGame();
-                        onClose();
-                      }}
-                    >
-                      Play Again
-                    </Button>
-                    <Button color="danger" variant="light" onPress={onClose}>
-                      Close
-                    </Button>
-                  </div>
-                </ModalBody>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
-        <Keyboard></Keyboard>
-      </div>
-    </ProtectedRoute>
+    <div className="flex flex-col items-center justify-center h-[calc(100vh-65px)] bg-gray-900 text-white mt-0.5">
+      {/* TODO: Above, the values 65px must always equal the height of the navbar */}
+
+      {/* <h1 className="text-4xl font-bold mb-8">Build Wordle here!</h1> */}
+      {guesses.map((_, i) => (
+        <Guess
+          key={i}
+          row={i}
+          guess={guesses[i]}
+          isGuessed={i < currentGuess}
+        />
+      ))}
+      <Keyboard />
+      <GameOverPopup playedGame={playedGame} />
+    </div>
   );
 }

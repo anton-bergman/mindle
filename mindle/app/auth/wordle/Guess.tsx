@@ -6,18 +6,10 @@ interface GuessProps {
   row: number;
   guess: string;
   isGuessed: boolean;
-  triggerShakeAnimation: boolean;
-  triggerFlipAnimation: boolean;
 }
 
-export default function Guess({
-  row,
-  guess,
-  isGuessed,
-  triggerShakeAnimation,
-  triggerFlipAnimation,
-}: GuessProps) {
-  const { word } = useWordle();
+export default function Guess({ row, guess, isGuessed }: GuessProps) {
+  const { word, triggerShakeAnimation, triggerFlipAnimation } = useWordle();
   const [triggerStates, setTriggerStates] = useState<boolean[]>(
     Array(word.length).fill(false)
   );

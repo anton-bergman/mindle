@@ -78,7 +78,7 @@ export default function MenuBar() {
       isBordered
       isMenuOpen={isMenuOpen}
       onMenuOpenChange={setIsMenuOpen}
-      className="bg-primary_background"
+      className="bg-primary_background z-[100]"
     >
       <NavbarContent className="sm:hidden" justify="start">
         <NavbarMenuToggle
