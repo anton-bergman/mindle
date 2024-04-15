@@ -1,22 +1,14 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import ProtectedRoute from "../../components/ProtectedRoute";
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  useDisclosure,
-} from "@nextui-org/react";
+import { useEffect, useState } from "react";
 import Guess from "./Guess";
 import { useWordle } from "./WordleContext";
 import Keyboard from "./Keyboard";
 import { useAuth } from "@/app/context/AuthContext";
 import { PlayedGame, addPlayedGame, hasPlayedToday } from "@/app/database";
+import GameOverPopup from "./GameOverPopup";
 
 export default function Wordle() {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { user } = useAuth();
   const {
     wordLength,
     currentGuess,
@@ -25,7 +17,6 @@ export default function Wordle() {
     isGameOver,
     startTime,
     endTime,
-    initGame,
     handleKeyup,
   } = useWordle();
   const [playedGame, setPlayedGame] = useState<PlayedGame | null>(null);
@@ -38,26 +29,34 @@ export default function Wordle() {
     };
   }, [handleKeyup]);
 
-  const { user } = useAuth();
   useEffect(() => {
-    if (isGameWon || isGameOver) {
-      const game: PlayedGame = {
-        userId: `Users/${user!.uid}`,
-        gameType: "Games/wordle",
-        startTime: startTime,
-        endTime: endTime,
-        numberOfGuesses: currentGuess,
-        wonGame: isGameWon,
-      };
-      const addGameToDB = async () => {
-        await addPlayedGame(game);
-      };
-      addGameToDB();
+    const handleGameDatabaseUpdate = async () => {
+      if (playedGame === null) {
+        const databaseGame: PlayedGame | null = await hasPlayedToday(
+          `Users/${user!.uid}`,
+          "Games/wordle"
+        );
 
-      setTimeout(() => {
-        setPlayedGame(game);
-      }, (wordLength + 1) * 350);
-    }
+        if ((isGameWon || isGameOver) && databaseGame === null) {
+          const newGame: PlayedGame = {
+            userId: `Users/${user!.uid}`,
+            gameType: "Games/wordle",
+            startTime: startTime,
+            endTime: endTime,
+            numberOfGuesses: currentGuess,
+            wonGame: isGameWon,
+          };
+          const addGameToDB = async () => {
+            await addPlayedGame(newGame);
+          };
+          addGameToDB();
+          setPlayedGame(newGame);
+        } else if (databaseGame) {
+          setPlayedGame(databaseGame);
+        }
+      }
+    };
+    handleGameDatabaseUpdate();
   }, [
     isGameWon,
     isGameOver,
@@ -66,25 +65,8 @@ export default function Wordle() {
     currentGuess,
     startTime,
     endTime,
+    playedGame,
   ]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const result: PlayedGame | null = await hasPlayedToday(
-        `Users/${user!.uid}`,
-        "Games/wordle"
-      );
-      setPlayedGame(result);
-    };
-
-    fetchData();
-  }, [user]);
-
-  useEffect(() => {
-    if (playedGame) {
-      onOpen();
-    }
-  }, [playedGame, onOpen]);
 
   return (
     <div className="flex flex-col items-center justify-center h-[calc(100vh-65px)] bg-gray-900 text-white mt-0.5">
@@ -100,34 +82,7 @@ export default function Wordle() {
         />
       ))}
       <Keyboard />
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} className="dark">
-        <ModalContent className="flex flex-col items-center justify-center">
-          {(onClose) => (
-            <>
-              <ModalHeader>
-                {playedGame?.wonGame ? <h1>You won!</h1> : <h1>You lost!</h1>}
-              </ModalHeader>
-              <ModalBody className="flex flex-col items-center justify-center mt-2">
-                <div className="flex flex-row gap-5">
-                  <Button
-                    variant="light"
-                    color="success"
-                    onClick={() => {
-                      initGame();
-                      onClose();
-                    }}
-                  >
-                    Play Again
-                  </Button>
-                  <Button color="danger" variant="light" onPress={onClose}>
-                    Close
-                  </Button>
-                </div>
-              </ModalBody>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      <GameOverPopup playedGame={playedGame} />
     </div>
   );
 }

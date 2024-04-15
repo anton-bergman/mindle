@@ -105,7 +105,7 @@ export async function addPlayedGame(playedGame: PlayedGame) {
 /**
  * Checks if a user has played a specific game type on the current day in Firestore.
  *
- * @param {string} uid - The user ID for whom the play status needs to be checked.
+ * @param {string} userPath - The path to the user ID document in firestore for whom the play status needs to be checked.
  * @param {string} gameTypePath - The path to the game type document in Firestore.
  * @returns {Promise<PlayedGame | null>} A promise that resolves to a PlayedGame object if the user has played the game today, or null if not.
  * @throws {Error} Throws an error if there is any issue querying Firestore.
