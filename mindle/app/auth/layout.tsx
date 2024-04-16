@@ -1,6 +1,6 @@
 "use client";
-import MenuBar from "../components/MenuBar";
-import ProtectedRoute from "../components/ProtectedRoute";
+import MenuBar from "@/app/components/MenuBar";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
 
 export default function AuthLayout({
   children,

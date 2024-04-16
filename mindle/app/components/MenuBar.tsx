@@ -1,9 +1,11 @@
+"use client";
+
 import {
   Navbar,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-  Link,
+  // Link,
   Button,
   Dropdown,
   DropdownTrigger,
@@ -14,6 +16,7 @@ import {
   NavbarMenu,
   NavbarMenuItem,
 } from "@nextui-org/react";
+import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import FormatListNumberedRoundedIcon from "@mui/icons-material/FormatListNumberedRounded";
@@ -25,6 +28,9 @@ import { useRouter } from "next/navigation";
 export default function MenuBar() {
   const { user, signOutUser, userLoaded } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<string>(
+    window.location.pathname
+  );
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -117,7 +123,10 @@ export default function MenuBar() {
               className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white"
               description="Comming soon."
               startContent={icons.wordle}
-              onClick={() => router.push("./wordle")}
+              onClick={() => {
+                router.push("./wordle");
+                setSelectedTab("");
+              }}
             >
               Wordle
             </DropdownItem>
@@ -126,7 +135,10 @@ export default function MenuBar() {
               className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white"
               description="Comming soon."
               startContent={icons.ordle}
-              onClick={() => router.push("./ordle")}
+              onClick={() => {
+                router.push("./ordle");
+                setSelectedTab("");
+              }}
             >
               Ordle
             </DropdownItem>
@@ -135,7 +147,10 @@ export default function MenuBar() {
               className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white"
               description="Comming soon."
               startContent={icons.stepdle}
-              onClick={() => router.push("./stepdle")}
+              onClick={() => {
+                router.push("./stepdle");
+                setSelectedTab("");
+              }}
             >
               Stepdle
             </DropdownItem>
@@ -146,7 +161,10 @@ export default function MenuBar() {
             href="./profile"
             aria-current="page"
             color="foreground"
-            className="font-light"
+            className={`${
+              selectedTab === "/auth/profile" ? "font-medium" : "font-light"
+            }`}
+            onClick={() => setSelectedTab("/auth/profile")}
           >
             Profile
           </Link>
@@ -156,7 +174,10 @@ export default function MenuBar() {
             href="./leaderboard"
             aria-current="page"
             color="foreground"
-            className="font-light"
+            className={`${
+              selectedTab === "/auth/leaderboard" ? "font-medium" : "font-light"
+            }`}
+            onClick={() => setSelectedTab("/auth/leaderboard")}
           >
             Leaderboard
           </Link>
@@ -164,11 +185,12 @@ export default function MenuBar() {
       </NavbarContent>
       <NavbarContent as="div" justify="end">
         <Dropdown placement="bottom-end" className="bg-secondary_menubar">
-          <DropdownTrigger>
-            {/* TODO: Fix the originalProps-error
-                Seem to be some known error with the nextUI component
-                https://github.com/nextui-org/nextui/issues/2593
+          {/* TODO: Fix the originalProps-error.
+                    Seem to be some known error with the nextUI component, if you comment out
+                    the <DropdownTrigger></DropdownTrigger> below the error disappears.
+                    Link to issue: https://github.com/nextui-org/nextui/issues/2593
             */}
+          <DropdownTrigger>
             <Avatar
               isBordered
               as="button"
@@ -178,12 +200,6 @@ export default function MenuBar() {
               size="sm"
               src={user?.photoURL || ""}
             />
-            {/* <Button
-              className="transition-transform"
-              color="default"
-              // name="Jason Hughes"
-              size="sm"
-            /> */}
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
             <DropdownItem
@@ -209,12 +225,24 @@ export default function MenuBar() {
       </NavbarContent>
       <NavbarMenu className="dark backdrop-blur-xl bg-zinc-900/60">
         <NavbarMenuItem key="wordle">
-          <Link className="w-full" color="foreground" href="./wordle" size="lg">
+          <Link
+            className="w-full"
+            color="foreground"
+            href="./wordle"
+            onClick={() => setIsMenuOpen(false)}
+            //size="lg"
+          >
             Wordle
           </Link>
         </NavbarMenuItem>
         <NavbarMenuItem key="ordle">
-          <Link className="w-full" color="foreground" href="./ordle" size="lg">
+          <Link
+            className="w-full"
+            color="foreground"
+            href="./ordle"
+            onClick={() => setIsMenuOpen(false)}
+            //size="lg"
+          >
             Ordle
           </Link>
         </NavbarMenuItem>
@@ -223,7 +251,8 @@ export default function MenuBar() {
             className="w-full"
             color="foreground"
             href="./stepdle"
-            size="lg"
+            onClick={() => setIsMenuOpen(false)}
+            //size="lg"
           >
             Stepdle
           </Link>
@@ -233,7 +262,8 @@ export default function MenuBar() {
             className="w-full"
             color="foreground"
             href="./profile"
-            size="lg"
+            onClick={() => setIsMenuOpen(false)}
+            //size="lg"
           >
             Profile
           </Link>
@@ -243,25 +273,29 @@ export default function MenuBar() {
             className="w-full"
             color="foreground"
             href="./leaderboard"
-            size="lg"
+            onClick={() => setIsMenuOpen(false)}
+            //size="lg"
           >
             Leaderboard
           </Link>
         </NavbarMenuItem>
-        {/* <NavbarMenuItem key="settings">
-          <Link className="w-full" color="foreground" href="#" size="lg">
-            Settings
-          </Link>
-        </NavbarMenuItem> */}
         <NavbarMenuItem key="logout">
-          <Link
+          {/* <Link
             className="w-full hover:cursor-pointer"
             color="danger"
-            size="lg"
+            //size="lg"
             onClick={handleSignOut}
           >
             Log Out
-          </Link>
+          </Link> */}
+          <div
+            className="w-full hover:cursor-pointer text-[#f31260]"
+            //size="lg"
+            onClick={handleSignOut}
+            //href={""}
+          >
+            Log Out
+          </div>
         </NavbarMenuItem>
       </NavbarMenu>
     </Navbar>

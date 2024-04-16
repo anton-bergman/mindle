@@ -1,11 +1,9 @@
 "use client";
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { NextUIProvider } from "@nextui-org/react";
-import { AuthContextProvider } from "./context/AuthContext";
-import MenuBar from "./components/MenuBar";
+import { AuthContextProvider } from "@/app/context/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
