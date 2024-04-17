@@ -8,7 +8,9 @@ export default function AuthLayout({
 }>) {
   return (
     <>
-      <WordleContextProvider>{children}</WordleContextProvider>
+      <WordleContextProvider gameLanguage="eng">
+        {children}
+      </WordleContextProvider>
     </>
   );
 }

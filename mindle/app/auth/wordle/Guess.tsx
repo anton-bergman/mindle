@@ -9,9 +9,10 @@ interface GuessProps {
 }
 
 export default function Guess({ row, guess, isGuessed }: GuessProps) {
-  const { word, triggerShakeAnimation, triggerFlipAnimation } = useWordle();
+  const { triggerShakeAnimation, triggerFlipAnimation, wordLength } =
+    useWordle();
   const [triggerStates, setTriggerStates] = useState<boolean[]>(
-    Array(word.length).fill(false)
+    Array(wordLength).fill(false)
   );
 
   useEffect(() => {
@@ -54,14 +55,14 @@ export default function Guess({ row, guess, isGuessed }: GuessProps) {
         !isGuessed && guess.length > 0 && triggerShakeAnimation
           ? "animate-headShake"
           : ""
-      } mb-1.5 grid gap-1.5 ${word.length === 3 ? "grid-cols-3" : ""} 
-      ${word.length === 4 ? "grid-cols-4" : ""} 
-      ${word.length === 5 ? "grid-cols-5" : ""} 
-      ${word.length === 6 ? "grid-cols-6" : ""} 
-      ${word.length === 7 ? "grid-cols-7" : ""}
-      ${word.length === 7 ? "grid-cols-8" : ""}`}
+      } mb-1.5 grid gap-1.5 ${wordLength === 3 ? "grid-cols-3" : ""} 
+      ${wordLength === 4 ? "grid-cols-4" : ""} 
+      ${wordLength === 5 ? "grid-cols-5" : ""} 
+      ${wordLength === 6 ? "grid-cols-6" : ""} 
+      ${wordLength === 7 ? "grid-cols-7" : ""}
+      ${wordLength === 7 ? "grid-cols-8" : ""}`}
     >
-      {new Array(word.length).fill(0).map((_, i) => {
+      {new Array(wordLength).fill(0).map((_, i) => {
         return (
           <Box
             key={i}

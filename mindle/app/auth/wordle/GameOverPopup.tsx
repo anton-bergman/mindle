@@ -1,4 +1,3 @@
-import { PlayedGame } from "@/app/database";
 import {
   Button,
   Modal,
@@ -16,14 +15,9 @@ interface TimeObject {
   seconds: string;
 }
 
-interface GameOverPopupProps {
-  playedGame: PlayedGame | null;
-}
-
-export default function GameOverPopup({ playedGame }: GameOverPopupProps) {
+export default function GameOverPopup() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { wordLength, endTime } = useWordle();
-  //const [openPopupTrigger, setOpenPopupTrigger] = useState<boolean>(false);
+  const { wordLength, endTime, isGameOver, isGameWon } = useWordle();
 
   const unixToTimeObject = (unixTime: number): TimeObject => {
     const hoursUnix: number = Math.floor((unixTime / (1000 * 60 * 60)) % 24);
@@ -32,7 +26,9 @@ export default function GameOverPopup({ playedGame }: GameOverPopupProps) {
 
     const minutesUnix: number = Math.floor((unixTime / 1000 / 60) % 60);
     const minutesFormatted: string =
-      0 <= hoursUnix && hoursUnix <= 9 ? `0${hoursUnix}` : `${hoursUnix}`;
+      0 <= minutesUnix && minutesUnix <= 9
+        ? `0${minutesUnix}`
+        : `${minutesUnix}`;
 
     const secondsUnix: number = Math.floor((unixTime / 1000) % 60);
     const secondsFormatted: string =
@@ -77,9 +73,8 @@ export default function GameOverPopup({ playedGame }: GameOverPopupProps) {
   });
 
   useEffect(() => {
-    if (playedGame) {
-      const timeSinceGameEnded: number =
-        (Date.now() - playedGame.endTime) / 1000;
+    if (isGameOver && endTime != -1) {
+      const timeSinceGameEnded: number = (Date.now() - endTime) / 1000;
       if (timeSinceGameEnded < 5) {
         setTimeout(() => {
           onOpen();
@@ -88,16 +83,21 @@ export default function GameOverPopup({ playedGame }: GameOverPopupProps) {
         onOpen();
       }
     }
-  }, [playedGame, onOpen, wordLength, endTime]);
+  }, [onOpen, wordLength, endTime, isGameOver]);
 
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} className="dark">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        className="dark"
+        size="sm"
+      >
         <ModalContent className="flex flex-col items-center justify-center">
           {(onClose) => (
             <>
               <ModalHeader>
-                {playedGame?.wonGame ? <h1>You won!</h1> : <h1>You lost!</h1>}
+                {isGameWon ? <h1>You won!</h1> : <h1>You lost!</h1>}
               </ModalHeader>
               <ModalBody className="flex flex-col items-center justify-center mt-2">
                 <div className="flex flex-col items-center justify-center">

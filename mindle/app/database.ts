@@ -2,8 +2,6 @@ import firebase from "firebase/compat/app";
 import { db } from "./firebaseConfig";
 import {
   DocumentData,
-  DocumentReference,
-  QueryDocumentSnapshot,
   addDoc,
   collection,
   doc,
@@ -26,6 +24,8 @@ export interface PlayedGame {
   startTime: number;
   endTime: number;
   numberOfGuesses: number;
+  word: string;
+  guesses: Array<string>;
   wonGame: boolean;
 }
 
@@ -83,11 +83,57 @@ export async function initializeUserDocuments(user: firebase.User) {
 }
 
 /**
+ * Reads vocabulary data from the specified Firestore document path.
+ *
+ * @param vocabularyPath The path to the Firestore document containing the vocabulary data.
+ * @returns A Promise that resolves with the vocabulary data as a DocumentData object if the document exists.
+ * @throws If the document does not exist or an error occurs during the read operation, an error is thrown.
+ */
+export async function readVocabulary(
+  vocabularyPath: string
+): Promise<DocumentData> {
+  try {
+    const vocabDocument = await getDoc(doc(db, vocabularyPath));
+    if (vocabDocument.exists()) {
+      return vocabDocument.data() as DocumentData;
+    } else {
+      throw new Error(
+        `Error: Could not find vocabulary for path: ${vocabularyPath}`
+      );
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+/**
+ * Reads daily game data from the Firestore document specified by the given path.
+ *
+ * @param gamePath The path to the Firestore document containing the daily game data.
+ * @returns A Promise that resolves with the daily game data as a DocumentData object.
+ * @throws If the document does not exist or an error occurs during the read operation, an error is thrown.
+ */
+export async function readDailyGameData(
+  gamePath: string
+): Promise<DocumentData> {
+  try {
+    const gameDocument = await getDoc(doc(db, gamePath));
+    if (gameDocument.exists()) {
+      return gameDocument.data() as DocumentData;
+    } else {
+      throw new Error(`Error: Could not find game data for path: ${gamePath}`);
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+/**
  * Stores a record of a game in the database based on the provided game type.
  *
  * @param {PlayedGame} playedGame - The record of the played game to be stored.
  */
-export async function addPlayedGame(playedGame: PlayedGame) {
+export async function addPlayedGame(playedGame: PlayedGame): Promise<void> {
   const gameTypeRef = doc(db, playedGame.gameType);
 
   // TODO: Check that the user played the game exists

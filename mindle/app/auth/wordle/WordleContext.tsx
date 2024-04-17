@@ -6,8 +6,15 @@ import {
   ReactNode,
   useCallback,
 } from "react";
-import { vocabulary } from "./vocabulary.json";
 import useLocalStorage from "use-local-storage";
+import {
+  PlayedGame,
+  addPlayedGame,
+  hasPlayedToday,
+  readDailyGameData,
+  readVocabulary,
+} from "@/app/database";
+import { useAuth } from "@/app/context/AuthContext";
 
 interface LocalStorageGameState {
   currentGuess: number;
@@ -31,7 +38,7 @@ interface WordleContextType {
   triggerFlipAnimation: boolean;
   startTime: number;
   endTime: number;
-  gameLoadedFromLocalStorage: boolean;
+  gameLoaded: boolean;
   initGame: () => void;
   handleKeyup: (e: KeyboardEvent) => void;
 }
@@ -39,32 +46,38 @@ interface WordleContextType {
 interface WordleProps {
   //children: string | JSX.Element | JSX.Element[] | (() => JSX.Element);
   children: ReactNode;
+  gameLanguage: string;
 }
 
 const WordleContext = createContext<WordleContextType>({
-  wordLength: vocabulary[0].length,
-  word: "toast",
+  wordLength: 5,
+  word: "no word",
   maxNumGuesses: 6,
   currentGuess: 0,
   guesses: Array(6).fill(""),
   isGameWon: false,
   isGameOver: false,
-  language: "eng",
+  language: "no language",
   triggerShakeAnimation: false,
   triggerFlipAnimation: false,
   startTime: -1,
-  gameLoadedFromLocalStorage: false,
+  gameLoaded: false,
   endTime: -1,
   initGame: () => {},
-  handleKeyup: (e: KeyboardEvent) => {},
+  handleKeyup: () => {},
 });
 
-export const WordleContextProvider = ({ children }: WordleProps) => {
-  const wordLength = vocabulary[0].length;
+export const WordleContextProvider = ({
+  children,
+  gameLanguage,
+}: WordleProps) => {
+  const { user } = useAuth();
+  const [vocabulary, setVocabulary] = useState<Array<string>>([""]);
+  const wordLength = 5;
   const maxNumGuesses = 6;
-  const language = "eng";
+  const language: string = gameLanguage;
 
-  const [word, setWord] = useState<string>("toast");
+  const [word, setWord] = useState<string>("");
   const [currentGuess, setCurrentGuess] = useState<number>(0);
   const [guesses, setGuesses] = useState<Array<string>>(
     Array(maxNumGuesses).fill("")
@@ -80,10 +93,11 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
   const [startTime, setStartTime] = useState<number>(-1);
   const [endTime, setEndTime] = useState<number>(-1);
 
-  const [gameLoadedFromLocalStorage, setGameLoadedFromLocalStorage] =
-    useState<boolean>(false);
+  // True if game is loaded from database or localstorage, false otherwise
+  const [gameLoaded, setGameLoaded] = useState<boolean>(false);
 
-  useEffect(() => {
+  // Function to load data from local storage
+  const loadFromLocalStorage = () => {
     const localStorageGameState: string | null =
       localStorage.getItem("GameState");
     const todayUnix = new Date().setHours(0, 0, 0, 0);
@@ -95,8 +109,7 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
       const parsedGameState = JSON.parse(
         localStorageGameState
       ) as LocalStorageGameState;
-      setGameLoadedFromLocalStorage(true);
-
+      setGameLoaded(true);
       setCurrentGuess(parsedGameState.currentGuess);
       setGuesses(parsedGameState.guesses);
       setIsGameOver(parsedGameState.isGameOver);
@@ -104,7 +117,70 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
       setStartTime(parsedGameState.startTime);
       setEndTime(parsedGameState.endTime);
     }
+  };
+
+  // Function to load data from database
+  const loadFromDatabase = async (): Promise<PlayedGame | null> => {
+    const databaseGame: PlayedGame | null = await hasPlayedToday(
+      `Users/${user!.uid}`,
+      "Games/wordle"
+    );
+    if (databaseGame) {
+      let lastGuess: number = 0;
+      for (let i = databaseGame.guesses.length - 1; i >= 0; i--) {
+        if (databaseGame.guesses[i].length > 0) {
+          lastGuess = i + 1;
+          break;
+        }
+      }
+      setGameLoaded(true);
+      setCurrentGuess(lastGuess);
+      setGuesses(databaseGame.guesses);
+      setIsGameOver(true);
+      setIsGameWon(databaseGame.wonGame);
+      setStartTime(databaseGame.startTime);
+      setEndTime(databaseGame.endTime);
+    }
+    return databaseGame;
+  };
+
+  useEffect(() => {
+    loadFromLocalStorage();
+    const loadVocabulary = async () => {
+      const englishWords5 = await readVocabulary("/Vocabularies/englishWords5");
+      const dailyWordleData = await readDailyGameData("/Games/wordle");
+      setVocabulary(englishWords5.words);
+      setWord(dailyWordleData.dailyWord);
+    };
+    loadVocabulary();
   }, []);
+
+  useEffect(() => {
+    const sync = async () => {
+      const databaseGame: PlayedGame | null = await loadFromDatabase();
+
+      if (!databaseGame && (isGameWon || isGameOver)) {
+        const endTimeUnix: number = Date.now();
+        setEndTime(endTimeUnix);
+
+        const newGame: PlayedGame = {
+          userId: `Users/${user!.uid}`,
+          gameType: "Games/wordle",
+          startTime: startTime,
+          endTime: endTimeUnix,
+          numberOfGuesses: currentGuess,
+          word: word,
+          guesses: guesses,
+          wonGame: isGameWon,
+        };
+
+        await addPlayedGame(newGame);
+      }
+    };
+
+    sync();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGameOver, user]);
 
   const [gameState, setGameState] = useLocalStorage<LocalStorageGameState>(
     "GameState",
@@ -129,7 +205,7 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
 
   const handleKeyup = useCallback(
     (e: KeyboardEvent): void => {
-      setGameLoadedFromLocalStorage(false);
+      setGameLoaded(false);
       const submitGuess = (): void => {
         if (vocabulary.includes(guesses[currentGuess])) {
           setCurrentGuess((prev) => prev + 1);
@@ -166,7 +242,7 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
       }
       return;
     },
-    [currentGuess, guesses, wordLength]
+    [currentGuess, guesses, vocabulary, wordLength]
   );
 
   useEffect(() => {
@@ -199,14 +275,10 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
     if (guesses[currentGuess - 1] === word) {
       setIsGameWon(true);
       setIsGameOver(true);
-      const endTimeUnix: number = Date.now();
-      setEndTime(endTimeUnix);
     }
 
     if (currentGuess === maxNumGuesses) {
       setIsGameOver(true);
-      const endTimeUnix: number = Date.now();
-      setEndTime(endTimeUnix);
     }
   }, [currentGuess, guesses, maxNumGuesses, word]);
 
@@ -245,7 +317,7 @@ export const WordleContextProvider = ({ children }: WordleProps) => {
         triggerFlipAnimation,
         startTime,
         endTime,
-        gameLoadedFromLocalStorage,
+        gameLoaded,
         initGame,
         handleKeyup,
       }}
