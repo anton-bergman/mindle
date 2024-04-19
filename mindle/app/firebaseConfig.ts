@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+// import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -27,7 +27,7 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
  * console will say code 500 internal server error. Look into this if analytics is
  * to be used.
  */
-//const analytics = getAnalytics(app);
+//// const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
