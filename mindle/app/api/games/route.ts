@@ -1,9 +1,9 @@
 import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/app/api/firebaseAdmin";
-import { verifyAuthToken } from "../utils";
+import { verifyAuthToken } from "@/app/api/utils";
 import { DecodedIdToken } from "firebase-admin/auth";
 
-interface Game {
+export default interface Game {
   dailyWord: string;
   previousWords: Array<string>;
 }

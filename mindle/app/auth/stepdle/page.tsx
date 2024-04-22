@@ -48,8 +48,9 @@ export default function Stepdle() {
       const userToken: string | undefined = await user?.getIdToken();
       // Date Format: YYYY-MM-DDTHH:mm:ss.sssZ
       // const date: string =
+      // "../api/played-games?date=1713304800000&game=wordle&uid=u9RvuXZZovWa5ORBcc4v6rPcab62"
       const response = await fetch(
-        "../api/played-games?date=1713304800000&game=wordle&uid=u9RvuXZZovWa5ORBcc4v6rPcab62",
+        "../api/played-games?date=1713304800000&uid=u9RvuXZZovWa5ORBcc4v6rPcab62",
         {
           method: "GET",
           headers: {
@@ -155,14 +156,13 @@ export default function Stepdle() {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log(user);
       //await fetchDataVocabulary();
       //await fetchUserStats();
       //await fetchPlayedGames();
-      //await fetchDailyGame();
+      await fetchDailyGame();
       //await fetchUserData();
       //await addPlayedGame();
-      await initializeUser();
+      //await initializeUser();
     };
     fetchData();
   }, []);

@@ -1,11 +1,13 @@
 import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/app/api/firebaseAdmin";
-import { verifyAuthToken } from "../utils";
+import { verifyAuthToken } from "@/app/api/utils";
 import { DecodedIdToken } from "firebase-admin/auth";
 
 export default interface User {
   email: string;
   name: string;
+  consecutiveDaysPlayed: number;
+  lastLogin: number;
 }
 
 export async function GET(req: NextRequest) {

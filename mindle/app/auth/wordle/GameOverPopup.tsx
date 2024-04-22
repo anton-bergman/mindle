@@ -45,6 +45,9 @@ export default function GameOverPopup() {
   };
 
   const calculateTimeToNextGame = (): TimeObject => {
+    // This is currently swedish timezone, but daily word changes in the database at 00:00 UTC
+    // which is equivalent to 02:00 swedish time. Change so that this functions uses UTC and not
+    // swedihs time
     const now: number = Date.now();
     const midnight: number = new Date(now).setHours(24, 0, 0, 0);
     const differenceUnix: number = midnight - now;

@@ -13,7 +13,7 @@
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.15.15",
     "@mui/material": "^5.15.15",
-    "@nextui-org/react": "^2.2.10",
+    "@nextui-org/react": "^2.3.5",
     "firebase": "^10.10.0",
     "firebase-admin": "^12.1.0",
     "framer-motion": "^11.0.24",

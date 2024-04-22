@@ -3,10 +3,9 @@ import { db } from "@/app/api/firebaseAdmin";
 import { verifyAuthToken } from "@/app/api/utils";
 import { DecodedIdToken } from "firebase-admin/auth";
 
-interface UserStats {
+export default interface GameStats {
   averageGuesses: number;
   averageTime: number;
-  consecutiveDaysPlayed: number;
   totalGamesPlayed: number;
   winRate: number;
 }
@@ -26,7 +25,7 @@ export async function GET(req: NextRequest) {
           .get();
 
         if (userStatsDoc.exists) {
-          const data: UserStats = userStatsDoc.data() as UserStats;
+          const data: GameStats = userStatsDoc.data() as GameStats;
           return new Response(JSON.stringify(data), {
             status: 200,
           });
