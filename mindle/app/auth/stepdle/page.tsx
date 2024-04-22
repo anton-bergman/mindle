@@ -159,7 +159,7 @@ export default function Stepdle() {
       //await fetchDataVocabulary();
       //await fetchUserStats();
       //await fetchPlayedGames();
-      await fetchDailyGame();
+      //await fetchDailyGame();
       //await fetchUserData();
       //await addPlayedGame();
       //await initializeUser();

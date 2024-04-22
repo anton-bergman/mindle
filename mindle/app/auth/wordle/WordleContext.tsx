@@ -279,7 +279,7 @@ export const WordleContextProvider = ({
         setEndTime(endTimeUnix);
 
         const newGame: PlayedGame = {
-          userId: user!.uid,
+          userId: `Users/${user!.uid}`,
           gameType: "Games/wordle",
           startTime: startTime,
           endTime: endTimeUnix,
