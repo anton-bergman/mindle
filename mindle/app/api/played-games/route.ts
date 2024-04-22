@@ -2,12 +2,9 @@ import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/app/api/firebaseAdmin";
 import { getDayEnd, verifyAuthToken } from "@/app/api/utils";
 import { DecodedIdToken } from "firebase-admin/auth";
-import {
-  QueryDocumentSnapshot,
-  Query,
-  DocumentData,
-} from "firebase-admin/firestore";
+import { QueryDocumentSnapshot, Query } from "firebase-admin/firestore";
 import GameStats from "@/app/api/user/stats/route";
+import User from "@/app/api/user/route";
 
 export default interface PlayedGame {
   userId: string;
@@ -20,76 +17,73 @@ export default interface PlayedGame {
   wonGame: boolean;
 }
 
-function updateAverageGuesses(
-  prevUserStats: GameStats,
-  newPlayedGame: PlayedGame
-): number {
-  const totalGuesses =
-    prevUserStats.averageGuesses === -1
-      ? newPlayedGame.numberOfGuesses
-      : prevUserStats.averageGuesses * prevUserStats.totalGamesPlayed +
-        newPlayedGame.numberOfGuesses;
+async function calculateGameStats(
+  userId: string,
+  gameType: string
+): Promise<GameStats> {
+  const query: Query = db
+    .collection("PlayedGames")
+    .where("userId", "==", `Users/${userId}`)
+    .where("gameType", "==", `Games/${gameType}`);
 
-  const totalGamesPlayed =
-    prevUserStats.totalGamesPlayed === -1
-      ? 1
-      : prevUserStats.totalGamesPlayed + 1;
-  return totalGuesses / totalGamesPlayed;
-}
+  // Execute query
+  const snapshot = await query.get();
 
-function updateAverageTime(
-  prevUserStats: GameStats,
-  newPlayedGame: PlayedGame
-): number {
-  const totalGameTime =
-    prevUserStats.averageTime === -1
-      ? newPlayedGame.endTime - newPlayedGame.startTime
-      : prevUserStats.averageTime * prevUserStats.totalGamesPlayed +
-        (newPlayedGame.endTime - newPlayedGame.startTime);
-  const totalGamesPlayed =
-    prevUserStats.totalGamesPlayed === -1
-      ? 1
-      : prevUserStats.totalGamesPlayed + 1;
-  return totalGameTime / totalGamesPlayed;
-}
+  // Extract game data from snapshot
+  const playedGames: Array<PlayedGame> = [];
+  snapshot.forEach((doc: QueryDocumentSnapshot) => {
+    const gameData: PlayedGame = doc.data() as PlayedGame;
+    playedGames.push(gameData);
+  });
 
-function updateTotalGamesPlayed(prevUserStats: GameStats): number {
-  const totalGamesPlayed =
-    prevUserStats.totalGamesPlayed === -1
-      ? 1
-      : prevUserStats.totalGamesPlayed + 1;
-  return totalGamesPlayed;
-}
+  const totalGamesPlayed = playedGames.length;
+  let totalNumGuesses: number = 0;
+  let totalTime: number = 0;
+  let totalNumWins: number = 0;
+  for (const playedGame of playedGames) {
+    totalNumGuesses += playedGame.numberOfGuesses;
+    totalTime += playedGame.endTime - playedGame.startTime;
+    totalNumWins += playedGame.wonGame === true ? 1 : 0;
+  }
 
-function updateWinRate(
-  prevUserStats: GameStats,
-  newPlayedGame: PlayedGame
-): number {
-  const totalWins =
-    prevUserStats.winRate === -1
-      ? newPlayedGame.wonGame
-        ? 1
-        : 0
-      : prevUserStats.winRate * prevUserStats.totalGamesPlayed +
-        (newPlayedGame.wonGame ? 1 : 0);
-  const totalGamesPlayed =
-    prevUserStats.totalGamesPlayed === -1
-      ? 1
-      : prevUserStats.totalGamesPlayed + 1;
-  return totalWins / totalGamesPlayed;
-}
-
-// Function to update all fields of UserStats object
-function updateUserGameStats(
-  prevUserStats: GameStats,
-  newPlayedGame: PlayedGame
-): GameStats {
-  return {
-    averageGuesses: updateAverageGuesses(prevUserStats, newPlayedGame),
-    averageTime: updateAverageTime(prevUserStats, newPlayedGame),
-    totalGamesPlayed: updateTotalGamesPlayed(prevUserStats),
-    winRate: updateWinRate(prevUserStats, newPlayedGame),
+  const newGameStats: GameStats = {
+    averageGuesses: totalNumGuesses / totalGamesPlayed,
+    averageTime: totalTime / totalGamesPlayed,
+    totalGamesPlayed: totalGamesPlayed,
+    winRate: totalNumWins / totalGamesPlayed,
   };
+  return newGameStats;
+}
+
+async function calculateConsecutiveDaysPlayed(userId: string): Promise<number> {
+  const query: Query = db
+    .collection("PlayedGames")
+    .where("userId", "==", `Users/${userId}`);
+  const snapshot = await query.get();
+
+  const playedGames: Array<PlayedGame> = [];
+  snapshot.forEach((doc: QueryDocumentSnapshot) => {
+    const gameData: PlayedGame = doc.data() as PlayedGame;
+    playedGames.push(gameData);
+  });
+
+  const playedDaysSet: Set<string> = new Set<string>();
+  for (const playedGame of playedGames) {
+    const date: string = new Date(playedGame.startTime).toDateString();
+    playedDaysSet.add(date);
+  }
+
+  let consecutiveDaysPlayed: number = 0;
+  const today: Date = new Date();
+  let i: Date = today;
+  while (playedDaysSet.has(i.toDateString())) {
+    consecutiveDaysPlayed++;
+    i.setDate(i.getDate() - 1);
+  }
+
+  console.log("playedDatesSet: ", playedDaysSet);
+  console.log("consecutiveDaysPlayed: ", consecutiveDaysPlayed);
+  return consecutiveDaysPlayed;
 }
 
 export async function GET(req: NextRequest) {
@@ -158,16 +152,22 @@ export async function POST(req: NextRequest) {
 
       // Update user stats
       const gameType: string = playedGame.gameType.replace("Games/", "");
-      const userStatsDoc: DocumentData = await db
-        .doc(`/Users/${userId}/Stats/${gameType}`)
-        .get();
-
-      const prevUserGameStats: GameStats = userStatsDoc.data() as GameStats;
-      const newUserStats: GameStats = updateUserGameStats(
-        prevUserGameStats,
-        playedGame
+      const newGameStats: GameStats = await calculateGameStats(
+        userId,
+        gameType
       );
-      await db.doc(`/Users/${userId}/Stats/${gameType}`).set(newUserStats);
+      await db.doc(`/Users/${userId}/Stats/${gameType}`).set(newGameStats);
+
+      // Update consecutive days played
+      const userDoc = await db.doc(`/Users/${userId}`).get();
+      const user: User = userDoc.data() as User;
+      const consecutiveDaysPlayed: number =
+        await calculateConsecutiveDaysPlayed(userId);
+      const updatedUser: User = {
+        ...user,
+        consecutiveDaysPlayed: consecutiveDaysPlayed,
+      };
+      await db.doc(`/Users/${userId}`).set(updatedUser);
 
       return new Response(
         JSON.stringify({
