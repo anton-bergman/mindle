@@ -17,7 +17,9 @@ import FormatListNumberedRoundedIcon from "@mui/icons-material/FormatListNumbere
 import TextFieldsRoundedIcon from "@mui/icons-material/TextFieldsRounded";
 import FormatColorTextRoundedIcon from "@mui/icons-material/FormatColorTextRounded";
 import { DocumentData } from "firebase-admin/firestore";
+import { db } from "../../firebaseConfig";
 import { useEffect, useState } from "react";
+import { doc, onSnapshot } from "firebase/firestore";
 import { useAuth } from "@/app/context/AuthContext";
 import React from "react";
 
@@ -57,7 +59,15 @@ export default function Leaderboard() {
       const leaderboardObject = await fetchLeaderboard();
       setLeaderBoard(leaderboardObject?.leaderboard);
     };
+
+    const unsub = onSnapshot(doc(db, "Leaderboards", "general"), (doc) => {
+      const leaderboardData = doc.data();
+      if (leaderboardData) {
+        setLeaderBoard(leaderboardData.leaderboard);
+      }
+    });
     loadData();
+    return () => unsub();
   }, []);
 
   return (
