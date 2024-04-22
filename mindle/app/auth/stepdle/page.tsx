@@ -154,6 +154,25 @@ export default function Stepdle() {
     }
   };
 
+  const fetchLeaderboard = async () => {
+    try {
+      const userToken: string | undefined = await user?.getIdToken();
+      const response = await fetch("../api/leaderboard?type=general", {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${userToken}`,
+          "Content-type": "application/json",
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("data: ", data);
+      }
+    } catch (error) {
+      throw new Error(`Error fetching data: ${error}`);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       //await fetchDataVocabulary();
@@ -163,6 +182,7 @@ export default function Stepdle() {
       //await fetchUserData();
       //await addPlayedGame();
       //await initializeUser();
+      // await fetchLeaderboard();
     };
     fetchData();
   }, []);

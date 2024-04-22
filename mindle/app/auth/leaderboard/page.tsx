@@ -16,10 +16,9 @@ import LeaderboardRoundedIcon from "@mui/icons-material/LeaderboardRounded";
 import FormatListNumberedRoundedIcon from "@mui/icons-material/FormatListNumberedRounded";
 import TextFieldsRoundedIcon from "@mui/icons-material/TextFieldsRounded";
 import FormatColorTextRoundedIcon from "@mui/icons-material/FormatColorTextRounded";
-import { db } from "../../firebaseConfig";
-import { getDoc, doc } from "firebase/firestore";
 import { DocumentData } from "firebase-admin/firestore";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/app/context/AuthContext";
 import React from "react";
 
 interface LeaderBoardEntry {
@@ -29,19 +28,36 @@ interface LeaderBoardEntry {
 }
 
 export default function Leaderboard() {
+  const { user } = useAuth();
+
   const colummns = ["RANK", "USER", "GUESSES", "TIME"];
   const [leaderBoard, setLeaderBoard] = useState<DocumentData | undefined>([]);
 
+  const fetchLeaderboard = async () => {
+    try {
+      const userToken: string | undefined = await user?.getIdToken();
+      const response = await fetch("../api/leaderboard?type=general", {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${userToken}`,
+          "Content-type": "application/json",
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
+    } catch (error) {
+      throw new Error(`Error fetching data: ${error}`);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const leaderBoardObject = (
-        await getDoc(doc(db, "/Leaderboards/general"))
-      ).data();
-
-      setLeaderBoard(leaderBoardObject?.leaderboard);
+    const loadData = async () => {
+      const leaderboardObject = await fetchLeaderboard();
+      setLeaderBoard(leaderboardObject?.leaderboard);
     };
-
-    fetchData();
+    loadData();
   }, []);
 
   return (

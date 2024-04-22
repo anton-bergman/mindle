@@ -62,7 +62,6 @@ export const createLeaderboard = functions.firestore
 
     type LeaderBoardEntry = {
       user: string;
-
       averageGuesses: number;
       averageTime: number;
     };
