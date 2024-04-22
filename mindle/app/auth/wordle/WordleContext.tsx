@@ -7,14 +7,10 @@ import {
   useCallback,
 } from "react";
 import useLocalStorage from "use-local-storage";
-import {
-  PlayedGame,
-  addPlayedGame,
-  hasPlayedToday,
-  readDailyGameData,
-  readVocabulary,
-} from "@/app/database";
 import { useAuth } from "@/app/context/AuthContext";
+import Vocabulary from "@/app/api/vocabulary/route";
+import Game from "@/app/api/games/route";
+import PlayedGame from "@/app/api/played-games/route";
 
 interface LocalStorageGameState {
   currentGuess: number;
@@ -121,41 +117,160 @@ export const WordleContextProvider = ({
 
   // Function to load data from database
   const loadFromDatabase = async (): Promise<PlayedGame | null> => {
-    const databaseGame: PlayedGame | null = await hasPlayedToday(
-      `Users/${user!.uid}`,
-      "Games/wordle"
+    const fetchPlayedGames = async (
+      dateStartTime?: number,
+      gameType?: string,
+      userId?: string
+    ): Promise<Array<PlayedGame>> => {
+      try {
+        const userToken: string | undefined = await user?.getIdToken();
+        // "../api/played-games?date=1713304800000&game=wordle&uid=u9RvuXZZovWa5ORBcc4v6rPcab62"
+        let queryString: string = "../api/played-games?";
+        if (dateStartTime) {
+          queryString += `date=${dateStartTime}`;
+          if (gameType || userId) {
+            queryString += "&";
+          }
+        }
+
+        if (gameType) {
+          queryString += `game=${gameType}`;
+          if (userId) {
+            queryString += "&";
+          }
+        }
+
+        if (userId) {
+          queryString += `uid=${userId}`;
+        }
+        const response = await fetch(queryString, {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${userToken}`,
+            "Content-type": "application/json",
+          },
+        });
+        if (response.ok) {
+          const data: Array<PlayedGame> =
+            (await response.json()) as Array<PlayedGame>;
+          return data;
+        } else {
+          throw new Error(`Failed to fetch played games: ${response.status}`);
+        }
+      } catch (error) {
+        throw new Error(`Error fetching played games: ${error}`);
+      }
+    };
+
+    const todayStartTime: number = new Date().setHours(0, 0, 0, 0);
+    const playedGames: Array<PlayedGame> = await fetchPlayedGames(
+      todayStartTime,
+      "wordle",
+      user!.uid
     );
-    if (databaseGame) {
+    const playedGameToday: PlayedGame = playedGames[0];
+    if (playedGameToday) {
       let lastGuess: number = 0;
-      for (let i = databaseGame.guesses.length - 1; i >= 0; i--) {
-        if (databaseGame.guesses[i].length > 0) {
+      for (let i = playedGameToday.guesses.length - 1; i >= 0; i--) {
+        if (playedGameToday.guesses[i].length > 0) {
           lastGuess = i + 1;
           break;
         }
       }
       setGameLoaded(true);
       setCurrentGuess(lastGuess);
-      setGuesses(databaseGame.guesses);
+      setGuesses(playedGameToday.guesses);
       setIsGameOver(true);
-      setIsGameWon(databaseGame.wonGame);
-      setStartTime(databaseGame.startTime);
-      setEndTime(databaseGame.endTime);
+      setIsGameWon(playedGameToday.wonGame);
+      setStartTime(playedGameToday.startTime);
+      setEndTime(playedGameToday.endTime);
     }
-    return databaseGame;
+    return playedGameToday;
   };
 
   useEffect(() => {
+    const fetchVocabulary = async (
+      vocabularyName: string
+    ): Promise<Vocabulary> => {
+      try {
+        const userToken: string | undefined = await user?.getIdToken();
+        const response = await fetch(
+          `../api/vocabulary?name=${vocabularyName}`,
+          {
+            method: "GET",
+            headers: {
+              authorization: `Bearer ${userToken}`,
+              "Content-type": "application/json",
+            },
+          }
+        );
+        if (response.ok) {
+          const data = (await response.json()) as Vocabulary;
+          return data;
+        } else {
+          throw new Error(`Failed to fetch vocabulary: ${response.statusText}`);
+        }
+      } catch (error) {
+        throw new Error(`Error fetching vocabulary: ${error}`);
+      }
+    };
+
+    const fetchDailyGameData = async (gameType: string): Promise<Game> => {
+      try {
+        const userToken: string | undefined = await user?.getIdToken();
+        const response = await fetch(`../api/games?game=${gameType}`, {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${userToken}`,
+            "Content-type": "application/json",
+          },
+        });
+        if (response.ok) {
+          const data = (await response.json()) as Game;
+          return data;
+        } else {
+          throw new Error(
+            `Failed to fetch daily game data: ${response.statusText}`
+          );
+        }
+      } catch (error) {
+        throw new Error(`Error fetching data: ${error}`);
+      }
+    };
+
     loadFromLocalStorage();
     const loadVocabulary = async () => {
-      const englishWords5 = await readVocabulary("/Vocabularies/englishWords5");
-      const dailyWordleData = await readDailyGameData("/Games/wordle");
-      setVocabulary(englishWords5.words);
-      setWord(dailyWordleData.dailyWord);
+      const vocabulary: Vocabulary = await fetchVocabulary("englishWords5");
+      const dailyGameData: Game = await fetchDailyGameData("wordle");
+      setVocabulary(vocabulary.words);
+      setWord(dailyGameData.dailyWord);
     };
     loadVocabulary();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
+    const addPlayedGame = async (playedGame: PlayedGame): Promise<void> => {
+      try {
+        const userToken: string | undefined = await user?.getIdToken();
+        const response = await fetch("../api/played-games", {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${userToken}`,
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify(playedGame),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          return;
+        } else {
+          throw new Error(`Failed to post new game to API`);
+        }
+      } catch (error) {
+        throw new Error(`Error posting new game: ${error}`);
+      }
+    };
+
     const sync = async () => {
       const databaseGame: PlayedGame | null = await loadFromDatabase();
 
@@ -164,7 +279,7 @@ export const WordleContextProvider = ({
         setEndTime(endTimeUnix);
 
         const newGame: PlayedGame = {
-          userId: `Users/${user!.uid}`,
+          userId: user!.uid,
           gameType: "Games/wordle",
           startTime: startTime,
           endTime: endTimeUnix,

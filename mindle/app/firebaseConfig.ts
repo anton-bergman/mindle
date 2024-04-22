@@ -22,7 +22,12 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Init services
-// const analytics = getAnalytics(app);
+
+/* NOTE: If uncommented below, the server side will yield an error and the client
+ * console will say code 500 internal server error. Look into this if analytics is
+ * to be used.
+ */
+//// const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
