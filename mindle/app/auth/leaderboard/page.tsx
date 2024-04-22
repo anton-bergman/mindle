@@ -16,9 +16,33 @@ import LeaderboardRoundedIcon from "@mui/icons-material/LeaderboardRounded";
 import FormatListNumberedRoundedIcon from "@mui/icons-material/FormatListNumberedRounded";
 import TextFieldsRoundedIcon from "@mui/icons-material/TextFieldsRounded";
 import FormatColorTextRoundedIcon from "@mui/icons-material/FormatColorTextRounded";
+import { db } from "../../firebaseConfig";
+import { getDoc, doc } from "firebase/firestore";
+import { DocumentData } from "firebase-admin/firestore";
+import { useEffect, useState } from "react";
+import React from "react";
+
+interface LeaderBoardEntry {
+  user: string;
+  averageGuesses: number;
+  averageTime: number;
+}
 
 export default function Leaderboard() {
   const colummns = ["RANK", "USER", "GUESSES", "TIME"];
+  const [leaderBoard, setLeaderBoard] = useState<DocumentData | undefined>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const leaderBoardObject = (
+        await getDoc(doc(db, "/Leaderboards/general"))
+      ).data();
+
+      setLeaderBoard(leaderBoardObject?.leaderboard);
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="flex justify-center h-[calc(100vh-65px)] w-screen bg-gray-800 text-white">
@@ -45,12 +69,14 @@ export default function Leaderboard() {
               </TableHeader>
 
               <TableBody>
-                <TableRow>
-                  <TableCell>1</TableCell>
-                  <TableCell>Anton</TableCell>
-                  <TableCell>3.43</TableCell>
-                  <TableCell>86</TableCell>
-                </TableRow>
+                {leaderBoard?.map((entry: LeaderBoardEntry, i: number) => (
+                  <TableRow key={entry.user}>
+                    <TableCell>{i + 1}</TableCell>
+                    <TableCell>{entry.user}</TableCell>
+                    <TableCell>{entry.averageGuesses}</TableCell>
+                    <TableCell>{entry.averageTime}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </Tab>

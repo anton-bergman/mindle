@@ -1,11 +1,9 @@
-const addWordsToDB = async function () {
-  const wordleVocabRef = collection(
-    db,
-    "Games/xxSylp4WFTZeP2iZfTVv/vocabularies"
-  );
+import { collection, doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { db } from "../firebaseConfig";
+import vocabulary from "/../../../Vocab-Creator/swe5Vocab.json";
 
+const addWordsToDB = async function () {
   try {
-    // Retrieve the document from Firestore
     const documentRef = doc(
       db,
       "Games/xxSylp4WFTZeP2iZfTVv/vocabularies",
@@ -14,11 +12,6 @@ const addWordsToDB = async function () {
     await updateDoc(documentRef, {
       words: arrayUnion(...vocabulary), // Add new words to the existing array
     });
-
-    // Update the words array in the document
-    // await updateDoc(documentRef, {
-    //   words: arrayUnion(...newWords) // Add new words to the existing array
-    // });
 
     console.log("Words added to the array field successfully.");
   } catch (error) {
