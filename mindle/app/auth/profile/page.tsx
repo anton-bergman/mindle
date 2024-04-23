@@ -12,14 +12,12 @@ import {
   PopoverContent,
   Tabs,
   Tab,
-  CardBody,
   Table,
   TableBody,
   TableRow,
   TableCell,
   TableHeader,
   TableColumn,
-  ScrollShadow,
 } from "@nextui-org/react";
 import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -27,17 +25,10 @@ import LeaderboardRoundedIcon from "@mui/icons-material/LeaderboardRounded";
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
 import VideogameAssetRoundedIcon from "@mui/icons-material/VideogameAssetRounded";
 import { useEffect, useState } from "react";
-import {
-  UserStats,
-  User,
-  LeaderBoard,
-  LeaderBoardEntry,
-  GameStats,
-} from "@/app/api/interfaces";
+import { User, LeaderBoard, GameStats } from "@/app/api/interfaces";
 import FormatListNumberedRoundedIcon from "@mui/icons-material/FormatListNumberedRounded";
 import TextFieldsRoundedIcon from "@mui/icons-material/TextFieldsRounded";
 import FormatColorTextRoundedIcon from "@mui/icons-material/FormatColorTextRounded";
-import { DocumentData } from "firebase/firestore";
 
 interface ProfileStats {
   streak: number;
@@ -174,7 +165,7 @@ export default function Profile() {
   return (
     <div className="flex flex-col items-center justify-center h-[calc(100vh-65px)] bg-gray-800 text-white">
       <div>
-        <div className="flex flex-row">
+        <div className="flex flex-row gap-4">
           <Card className="w-1/2 p-1">
             <CardHeader className="flex flex-row justify-evenly items-center">
               <Avatar
