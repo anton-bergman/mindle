@@ -1,10 +1,31 @@
-import { onSchedule } from "firebase-functions/v2/scheduler";
+import {onSchedule} from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
-import { DocumentData } from "firebase-admin/firestore";
+import {DocumentData} from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
+// import { onRequest } from "firebase-functions/v2/https";
 
 admin.initializeApp();
+interface PlayedGame {
+  userId: string;
+  gameType: string;
+  startTime: number;
+  endTime: number;
+  guesses: Array<string>;
+  numberOfGuesses: number;
+  word: string;
+  wonGame: boolean;
+}
+interface UsersSessions {
+  [key: string]: DocumentData[];
+}
 
+interface leaderboardEntry {
+  user: string;
+  averageGuesses: number;
+  averageTime: number;
+}
+
+type leaderboard = leaderboardEntry[];
 /**
  * Choose a daily word for the Wordle game.
  * This function runs every day at 02:00.
@@ -42,7 +63,7 @@ export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
     await admin
       .firestore()
       .doc("Games/wordle")
-      .update({ dailyWord: randomWord, previousWords: previousWords });
+      .update({dailyWord: randomWord, previousWords: previousWords});
   } catch (e) {
     console.log(e);
   }
@@ -53,21 +74,9 @@ export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
  * This function triggers when a new document is created in the
  * PlayedGames collection.
  */
-export const createLeaderboard = functions.firestore
+export const createleaderboardGeneral = functions.firestore
   .document("/PlayedGames/{gameId}")
   .onCreate(async () => {
-    type UsersSessions = {
-      [key: string]: DocumentData[];
-    };
-
-    type LeaderBoardEntry = {
-      user: string;
-      averageGuesses: number;
-      averageTime: number;
-    };
-
-    type LeaderBoard = LeaderBoardEntry[];
-
     const db = admin.firestore();
     /**
      * Create leaderboard when a new game is played.
@@ -97,13 +106,13 @@ export const createLeaderboard = functions.firestore
      * PlayedGames collection.
      * @param {UsersSessions} userSessions - The user sessions data.
      */
-    async function createLeaderboard(userSessions: UsersSessions) {
-      const leaderBoard: LeaderBoard = [];
+    async function createleaderboard(userSessions: UsersSessions) {
+      const leaderboard: leaderboard = [];
 
       await Promise.all(
         Object.keys(userSessions).map(async (userPath) => {
           const userSnapshot = await db.doc(userPath).get();
-          const user = userSnapshot.data();
+          const user: DocumentData | undefined = userSnapshot.data();
 
           let numberOfGuess = 0;
           let numberOfGames = 0;
@@ -117,22 +126,69 @@ export const createLeaderboard = functions.firestore
 
           const averageGuesses = numberOfGuess / numberOfGames;
           const averageTime = totalTime / (numberOfGames * 1000);
-          const leaderBoardEntry: LeaderBoardEntry = {
+          const leaderboardEntry: leaderboardEntry = {
             user: user?.email,
             averageGuesses: averageGuesses,
             averageTime: averageTime,
           };
 
-          leaderBoard.push(leaderBoardEntry);
+          leaderboard.push(leaderboardEntry);
         })
       );
-      leaderBoard.sort((a, b) => a.averageGuesses - b.averageGuesses);
-      return leaderBoard;
+      return leaderboard;
     }
     const userSessions = await getUserSessions();
-    const leaderBoard = await createLeaderboard(userSessions);
+    const leaderboard = await createleaderboard(userSessions);
+    leaderboard.sort((a, b) => a.averageGuesses - b.averageGuesses);
     await admin
       .firestore()
-      .doc("Leaderboards/general")
-      .update({ leaderboard: leaderBoard });
+      .doc("/Leaderboards/general")
+      .update({leaderboard: leaderboard});
+  });
+
+export const createDailyWordleleaderboard = functions.firestore
+  .document("/PlayedGames/{gameId}")
+  .onCreate(async () => {
+    const date = new Date();
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+
+    const dateStartUnix: number = date.getTime();
+    const dateEndUnix: number = dateStartUnix + 24 * 60 * 60 * 1000 - 1;
+    try {
+      const snapshot = await admin
+        .firestore()
+        .collection("/PlayedGames")
+        .where("startTime", ">=", dateStartUnix)
+        .where("startTime", "<=", dateEndUnix)
+        .get();
+      const playedGames: PlayedGame[] = snapshot.docs.map(
+        (doc) => doc.data() as PlayedGame
+      );
+      const leaderboard: leaderboard = [];
+
+      await Promise.all(
+        playedGames.map(async (game: PlayedGame) => {
+          const user = (await admin.firestore().doc(game.userId).get()).data();
+          const leaderboardEntry: leaderboardEntry = {
+            user: user?.email,
+            averageGuesses: game.numberOfGuesses,
+            averageTime: (game.endTime - game.startTime) / 1000,
+          };
+
+          leaderboard.push(leaderboardEntry);
+          return leaderboard;
+        })
+      );
+
+      leaderboard.sort((a, b) => a.averageGuesses - b.averageGuesses);
+      await admin
+        .firestore()
+        .doc("/Leaderboards/wordle")
+        .update({leaderboard: leaderboard});
+    } catch (error) {
+      console.log(error);
+    }
   });
