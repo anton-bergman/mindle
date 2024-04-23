@@ -42,4 +42,17 @@ function getDayEnd(dayStartUnix: number): number {
   return dayEndUnix;
 }
 
+/**
+ * Calculates the start time in Unix timestamp (milliseconds) for the beginning of yesterday in Swedish time zone.
+ *
+ * @returns {number} The Unix timestamp representing the start time of yesterday in Swedish time zone.
+ */
+function getYesterdayStartUnixSwedishTime(): number {
+  const currentDate: Date = new Date();
+  const yesterday: Date = new Date(currentDate);
+  yesterday.setDate(currentDate.getDate() - 1);
+  yesterday.setHours(0, 0, 0, 0);
+  return yesterday.getTime() + 2 * 60 * 60 * 1000; // Add 2 hours for Swedish time zone
+}
+
 export { verifyAuthToken, getDayEnd };

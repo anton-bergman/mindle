@@ -3,19 +3,7 @@ import { db } from "@/app/api/firebaseAdmin";
 import { getDayEnd, verifyAuthToken } from "@/app/api/utils";
 import { DecodedIdToken } from "firebase-admin/auth";
 import { QueryDocumentSnapshot, Query } from "firebase-admin/firestore";
-import GameStats from "@/app/api/user/stats/route";
-import User from "@/app/api/user/route";
-
-export default interface PlayedGame {
-  userId: string;
-  gameType: string;
-  startTime: number;
-  endTime: number;
-  guesses: Array<string>;
-  numberOfGuesses: number;
-  word: string;
-  wonGame: boolean;
-}
+import { User, UserStats, PlayedGame, GameStats } from "@/app/api/interfaces";
 
 async function calculateGameStats(
   userId: string,
@@ -55,7 +43,7 @@ async function calculateGameStats(
   return newGameStats;
 }
 
-async function calculateConsecutiveDaysPlayed(userId: string): Promise<number> {
+async function calculateUserStats(userId: string): Promise<UserStats> {
   const query: Query = db
     .collection("PlayedGames")
     .where("userId", "==", `Users/${userId}`);
@@ -73,6 +61,10 @@ async function calculateConsecutiveDaysPlayed(userId: string): Promise<number> {
     playedDaysSet.add(date);
   }
 
+  // Calculate the total number of games played
+  const totalGamesPlayed: number = playedGames.length;
+
+  // Calculate consective days played
   let consecutiveDaysPlayed: number = 0;
   const today: Date = new Date();
   let i: Date = today;
@@ -81,9 +73,12 @@ async function calculateConsecutiveDaysPlayed(userId: string): Promise<number> {
     i.setDate(i.getDate() - 1);
   }
 
-  console.log("playedDatesSet: ", playedDaysSet);
-  console.log("consecutiveDaysPlayed: ", consecutiveDaysPlayed);
-  return consecutiveDaysPlayed;
+  const userStats: UserStats = {
+    totalGamesPlayed: totalGamesPlayed,
+    consecutiveDaysPlayed: consecutiveDaysPlayed,
+  };
+
+  return userStats;
 }
 
 export async function GET(req: NextRequest) {
@@ -150,7 +145,7 @@ export async function POST(req: NextRequest) {
       const playedGameDoc = db.collection("PlayedGames").doc();
       await playedGameDoc.set(playedGame);
 
-      // Update user stats
+      // Update game stats
       const gameType: string = playedGame.gameType.replace("Games/", "");
       const newGameStats: GameStats = await calculateGameStats(
         userId,
@@ -158,14 +153,15 @@ export async function POST(req: NextRequest) {
       );
       await db.doc(`/Users/${userId}/Stats/${gameType}`).set(newGameStats);
 
-      // Update consecutive days played
+      // Update user-stats (ie. consecutive days played and total games played)
       const userDoc = await db.doc(`/Users/${userId}`).get();
       const user: User = userDoc.data() as User;
-      const consecutiveDaysPlayed: number =
-        await calculateConsecutiveDaysPlayed(userId);
+
+      const userStats: UserStats = await calculateUserStats(userId);
       const updatedUser: User = {
         ...user,
-        consecutiveDaysPlayed: consecutiveDaysPlayed,
+        consecutiveDaysPlayed: userStats.consecutiveDaysPlayed,
+        totalGamesPlayed: userStats.totalGamesPlayed,
       };
       await db.doc(`/Users/${userId}`).set(updatedUser);
 

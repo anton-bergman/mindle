@@ -2,17 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/app/api/firebaseAdmin";
 import { getDayEnd, verifyAuthToken } from "@/app/api/utils";
 import { DecodedIdToken } from "firebase-admin/auth";
-import User from "@/app/api/user/route";
-import GameStats from "@/app/api/user/stats/route";
-
-// Function to get yesterday's start time in Swedish time zone
-function getYesterdayStartUnixSwedishTime(): number {
-  const currentDate: Date = new Date();
-  const yesterday: Date = new Date(currentDate);
-  yesterday.setDate(currentDate.getDate() - 1);
-  yesterday.setHours(0, 0, 0, 0);
-  return yesterday.getTime() + 2 * 60 * 60 * 1000; // Add 2 hours for Swedish time zone
-}
+import { User, GameStats } from "@/app/api/interfaces";
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,6 +23,7 @@ export async function POST(req: NextRequest) {
           email: decodedUser.email,
           name: decodedUser.name,
           consecutiveDaysPlayed: 0,
+          totalGamesPlayed: 0,
           lastLogin: Date.now(),
         };
         // Create new user document

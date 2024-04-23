@@ -2,11 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/app/api/firebaseAdmin";
 import { verifyAuthToken } from "@/app/api/utils";
 import { DecodedIdToken } from "firebase-admin/auth";
-
-export default interface Vocabulary {
-  wordLength: number;
-  words: Array<string>;
-}
+import { Vocabulary } from "@/app/api/interfaces";
 
 export async function GET(req: NextRequest) {
   try {

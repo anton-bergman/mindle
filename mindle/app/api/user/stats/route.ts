@@ -2,13 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/app/api/firebaseAdmin";
 import { verifyAuthToken } from "@/app/api/utils";
 import { DecodedIdToken } from "firebase-admin/auth";
-
-export default interface GameStats {
-  averageGuesses: number;
-  averageTime: number;
-  totalGamesPlayed: number;
-  winRate: number;
-}
+import { GameStats } from "@/app/api/interfaces";
 
 export async function GET(req: NextRequest) {
   try {

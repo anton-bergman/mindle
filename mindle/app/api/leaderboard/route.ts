@@ -2,14 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/app/api/firebaseAdmin";
 import { verifyAuthToken } from "@/app/api/utils";
 import { DecodedIdToken } from "firebase-admin/auth";
-
-type LeaderBoardEntry = {
-  user: string;
-  averageGuesses: number;
-  averageTime: number;
-};
-
-type LeaderBoard = LeaderBoardEntry[];
+import { LeaderBoard } from "../interfaces";
 
 export async function GET(req: NextRequest) {
   try {

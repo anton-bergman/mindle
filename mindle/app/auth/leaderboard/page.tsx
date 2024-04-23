@@ -32,7 +32,7 @@ interface LeaderBoardEntry {
 export default function Leaderboard() {
   const { user } = useAuth();
 
-  const colummns = ["RANK", "USER", "GUESSES", "TIME"];
+  const colummns = ["RANK", "USER", "AVG GUESSES", "AVG TIME"];
   const [leaderBoard, setLeaderBoard] = useState<DocumentData | undefined>([]);
 
   const fetchLeaderboard = async () => {

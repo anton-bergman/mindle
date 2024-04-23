@@ -2,11 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/app/api/firebaseAdmin";
 import { verifyAuthToken } from "@/app/api/utils";
 import { DecodedIdToken } from "firebase-admin/auth";
-
-export default interface Game {
-  dailyWord: string;
-  previousWords: Array<string>;
-}
+import { Game } from "@/app/api/interfaces";
 
 export async function GET(req: NextRequest) {
   try {
