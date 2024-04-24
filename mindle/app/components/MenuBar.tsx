@@ -101,7 +101,7 @@ export default function MenuBar() {
             <DropdownTrigger>
               <Button
                 disableRipple
-                className="text-white bg-transparent data-[hover=true]:bg-transparent"
+                className="text-white bg-transparent data-[hover=true]:bg-transparent text-medium"
                 //className="text-white"
                 endContent={icons.chevron}
                 radius="sm"
@@ -121,7 +121,7 @@ export default function MenuBar() {
             <DropdownItem
               key="wordle-link"
               className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white"
-              description="Comming soon."
+              description="Guess a new word each day!"
               startContent={icons.wordle}
               onClick={() => {
                 router.push("./wordle");
