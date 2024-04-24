@@ -93,7 +93,15 @@ export default function MenuBar() {
       </NavbarContent>
 
       <NavbarBrand>
-        <p className="font-bold text-inherit">M I N D L E</p>
+        <p
+          className="font-bold text-inherit cursor-pointer"
+          onClick={() => {
+            router.push("./profile");
+            setSelectedTab("/auth/profile");
+          }}
+        >
+          M I N D L E
+        </p>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <Dropdown className="bg-secondary_menubar">

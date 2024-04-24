@@ -1,6 +1,6 @@
-import { onSchedule } from "firebase-functions/v2/scheduler";
+import {onSchedule} from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
-import { DocumentData } from "firebase-admin/firestore";
+import {DocumentData} from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
 
 admin.initializeApp();
@@ -30,7 +30,17 @@ type leaderboard = leaderboardEntry[];
  * This function runs every day at 02:00.
  */
 export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
-  async function generateDailyWordleWord() {
+  /**
+   * Generates a daily word for the Wordle game and updates the game data.
+   * This function retrieves a list of words, selects a random word that
+   * has not been used before,and updates the game data with the selected
+   * word and the list of previous words.
+   * If the list of previous words reaches a certain length, the oldest
+   * word is removed.
+   * @return {Promise<void>} A promise indicating the completion of
+   * the operation.
+   */
+  async function generateDailyWordleWord(): Promise<void> {
     try {
       const wordleWordsSnapshot = await admin
         .firestore()
@@ -64,21 +74,38 @@ export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
       await admin
         .firestore()
         .doc("Games/wordle")
-        .update({ dailyWord: randomWord, previousWords: previousWords });
+        .update({dailyWord: randomWord, previousWords: previousWords});
     } catch (e) {
       console.log(e);
     }
   }
-  async function resetWordleLeaderboard() {
+  /**
+   * Resets the leaderboard for the Wordle game.
+   * This function clears the leaderboard data in the Firestore
+   * database, effectively resetting the leaderboard to an empty
+   * array. @return {Promise<void>} A promise indicating the completion
+   * of the operation.
+   */
+  async function resetWordleLeaderboard(): Promise<void> {
     await admin
       .firestore()
       .doc("/Leaderboards/wordle")
-      .update({ leaderboard: [] });
+      .update({leaderboard: []});
   }
+
   await generateDailyWordleWord();
   await resetWordleLeaderboard();
 });
 
+/**
+ * Retrieves user sessions from the Firestore database.
+ * This function fetches data from the "PlayedGames" collection
+ * and organizes it into a dictionary where each user's sessions
+ * are grouped by their user ID.
+ * @return {Promise<UsersSessions>} A promise that resolves to a dictionary
+ * where each key is a user ID and the corresponding value is an array of
+ * that user's sessions.
+ */
 async function getUserSessions() {
   const db = admin.firestore();
   const gameSessionsSnapshot = await db.collection("/PlayedGames").get();
@@ -136,17 +163,33 @@ async function createleaderboard(userSessions: UsersSessions) {
   return leaderboard;
 }
 
-async function createGeneralLeaderboard() {
+/**
+ * Creates the general leaderboard based on user sessions data.
+ * Retrieves user sessions, generates the leaderboard, sorts it by
+ average guesses,
+ * and updates the Firestore document for the general leaderboard.
+ * @return {Promise<void>} A promise that resolves once the leaderboard
+ * is created and updated.
+ */
+async function createGeneralLeaderboard(): Promise<void> {
   const userSessions = await getUserSessions();
   const leaderboard = await createleaderboard(userSessions);
   leaderboard.sort((a, b) => a.averageGuesses - b.averageGuesses);
   await admin
     .firestore()
     .doc("/Leaderboards/general")
-    .update({ leaderboard: leaderboard });
+    .update({leaderboard: leaderboard});
 }
 
-async function createDailyWordleleaderboard() {
+/**
+ * Creates the daily Wordle leaderboard for the current day.
+ * Retrieves played games for the current day, generates the
+ * leaderboard, sorts it by average guesses, and updates the
+ * Firestore document for the daily Wordle leaderboard.
+ * @return {Promise<void>} A promise that resolves once the
+ * leaderboard is created and updated.
+ */
+async function createDailyWordleleaderboard(): Promise<void> {
   const date = new Date();
   date.setHours(0);
   date.setMinutes(0);
@@ -185,7 +228,7 @@ async function createDailyWordleleaderboard() {
     await admin
       .firestore()
       .doc("/Leaderboards/wordle")
-      .update({ leaderboard: leaderboard });
+      .update({leaderboard: leaderboard});
   } catch (error) {
     console.log(error);
   }
