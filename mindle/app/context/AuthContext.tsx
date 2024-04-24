@@ -14,6 +14,7 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   GithubAuthProvider,
+  signInWithRedirect,
 } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 
@@ -89,7 +90,7 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    await signInWithRedirect(auth, provider);
   };
 
   const signInWithGitHub = async () => {
