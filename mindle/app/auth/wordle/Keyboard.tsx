@@ -67,7 +67,7 @@ export default function Keyboard() {
                 <div
                   key={j}
                   id="keyboard-enter"
-                  className={`flex h-14 w-16 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xs font-bold`}
+                  className={`flex h-14 w-16 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xs font-bold cursor-pointer`}
                   onClick={() => handleClick(letter)}
                 >
                   enter
@@ -77,7 +77,7 @@ export default function Keyboard() {
               return (
                 <div
                   key={j}
-                  className={`flex h-14 w-16 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xs font-bold`}
+                  className={`flex h-14 w-16 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xs font-bold cursor-pointer`}
                   onClick={() => handleClick(letter)}
                 >
                   <BackspaceIcon></BackspaceIcon>
@@ -87,7 +87,7 @@ export default function Keyboard() {
               return (
                 <div
                   key={j}
-                  className={`flex h-14 w-11 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xl font-bold`}
+                  className={`flex h-14 w-11 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xl font-bold cursor-pointer`}
                   onClick={() => handleClick(letter)}
                 >
                   {letter}

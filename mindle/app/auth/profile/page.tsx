@@ -1,5 +1,5 @@
 "use client";
-import ProfileCard from "./profileCard";
+import ProfileCard from "./ProfileCard";
 import StatsCard from "./StatsCard";
 import GameCard from "./GameCard";
 
