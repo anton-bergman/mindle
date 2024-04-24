@@ -277,11 +277,19 @@ export default function Profile() {
                           break;
                         }
                         case "AVG GUESSES": {
-                          value = wordleStats?.averageGuesses;
+                          value =
+                            wordleStats?.averageGuesses === undefined
+                              ? undefined
+                              : parseFloat(
+                                  wordleStats?.averageGuesses.toFixed(2)
+                                );
                           break;
                         }
                         default: {
-                          value = wordleStats?.averageTime;
+                          value =
+                            wordleStats?.averageTime === undefined
+                              ? undefined
+                              : parseFloat(wordleStats?.averageTime.toFixed(2));
                           break;
                         }
                       }

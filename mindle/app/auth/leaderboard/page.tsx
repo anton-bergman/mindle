@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useAuth } from "@/app/context/AuthContext";
 import React from "react";
+import { unsubscribe } from "diagnostics_channel";
 
 interface LeaderBoardEntry {
   user: string;
@@ -33,12 +34,17 @@ export default function Leaderboard() {
   const { user } = useAuth();
 
   const colummns = ["RANK", "USER", "AVG GUESSES", "AVG TIME"];
-  const [leaderBoard, setLeaderBoard] = useState<DocumentData | undefined>([]);
+  const [leaderBoardGeneral, setLeaderBoardGeneral] = useState<
+    DocumentData | undefined
+  >([]);
+  const [leaderBoardWordle, setLeaderBoardWordle] = useState<
+    DocumentData | undefined
+  >([]);
 
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = async (type: string) => {
     try {
       const userToken: string | undefined = await user?.getIdToken();
-      const response = await fetch("../api/leaderboard?type=general", {
+      const response = await fetch(`../api/leaderboard?type=${type}`, {
         method: "GET",
         headers: {
           authorization: `Bearer ${userToken}`,
@@ -56,18 +62,37 @@ export default function Leaderboard() {
 
   useEffect(() => {
     const loadData = async () => {
-      const leaderboardObject = await fetchLeaderboard();
-      setLeaderBoard(leaderboardObject?.leaderboard);
+      const leaderboardGeneralObject = await fetchLeaderboard("general");
+      const leaderboardWordleObject = await fetchLeaderboard("wordle");
+      setLeaderBoardGeneral(leaderboardGeneralObject?.leaderboard);
+      setLeaderBoardWordle(leaderboardWordleObject?.leaderboard);
     };
 
-    const unsub = onSnapshot(doc(db, "Leaderboards", "general"), (doc) => {
+    const unsubGeneral = onSnapshot(
+      doc(db, "Leaderboards", "general"),
+      (doc) => {
+        const leaderboardData = doc.data();
+        if (leaderboardData) {
+          setLeaderBoardGeneral(leaderboardData.leaderboard);
+        }
+      }
+    );
+
+    const unsubWordle = onSnapshot(doc(db, "Leaderboards", "wordle"), (doc) => {
       const leaderboardData = doc.data();
       if (leaderboardData) {
-        setLeaderBoard(leaderboardData.leaderboard);
+        setLeaderBoardWordle(leaderboardData.leaderboard);
       }
     });
+
+    const unsubscribe = function () {
+      unsubGeneral();
+      unsubWordle();
+    };
+
     loadData();
-    return () => unsub();
+
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -95,14 +120,16 @@ export default function Leaderboard() {
               </TableHeader>
 
               <TableBody>
-                {leaderBoard?.map((entry: LeaderBoardEntry, i: number) => (
-                  <TableRow key={entry.user}>
-                    <TableCell>{i + 1}</TableCell>
-                    <TableCell>{entry.user}</TableCell>
-                    <TableCell>{entry.averageGuesses}</TableCell>
-                    <TableCell>{entry.averageTime}</TableCell>
-                  </TableRow>
-                ))}
+                {leaderBoardGeneral?.map(
+                  (entry: LeaderBoardEntry, i: number) => (
+                    <TableRow key={entry.user}>
+                      <TableCell>{i + 1}</TableCell>
+                      <TableCell>{entry.user}</TableCell>
+                      <TableCell>{entry.averageGuesses.toFixed(2)}</TableCell>
+                      <TableCell>{entry.averageTime.toFixed(2)}</TableCell>
+                    </TableRow>
+                  )
+                )}
               </TableBody>
             </Table>
           </Tab>
@@ -114,14 +141,28 @@ export default function Leaderboard() {
               </div>
             }
           >
-            <Card>
-              <CardBody>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat.
-              </CardBody>
-            </Card>
+            <Table aria-label="Example table with custom cells">
+              <TableHeader columns={["User"]}>
+                {colummns.map((column, i) => (
+                  <TableColumn key={i} align="start">
+                    {column}
+                  </TableColumn>
+                ))}
+              </TableHeader>
+
+              <TableBody>
+                {leaderBoardWordle?.map(
+                  (entry: LeaderBoardEntry, i: number) => (
+                    <TableRow key={entry.user}>
+                      <TableCell>{i + 1}</TableCell>
+                      <TableCell>{entry.user}</TableCell>
+                      <TableCell>{entry.averageGuesses.toFixed(2)}</TableCell>
+                      <TableCell>{entry.averageTime.toFixed(2)}</TableCell>
+                    </TableRow>
+                  )
+                )}
+              </TableBody>
+            </Table>
           </Tab>
           <Tab
             title={
