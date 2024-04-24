@@ -7,6 +7,7 @@ import { Button } from "@nextui-org/react";
 import { VscGithub } from "react-icons/vsc";
 import Image from "next/image";
 import mindleLogo from "../../public/images/mindle_logo_and_text.png";
+import { width } from "@mui/system";
 
 export default function SignIn() {
   const { userLoaded, signInWithGoogle, signInWithGitHub } = useAuth();
@@ -38,11 +39,12 @@ export default function SignIn() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
       <Image
-        className="m-3"
+        className="m-3 w-auto h-40"
         src={mindleLogo}
         alt="Mindle logo"
-        width={175}
-        height={175}
+        width={0}
+        height={0}
+        priority={true}
       />
       <Button
         className="bg-white text-google_text shadow-black"
