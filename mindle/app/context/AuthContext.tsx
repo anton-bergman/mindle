@@ -14,8 +14,18 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   GithubAuthProvider,
+  UserCredential,
+  User,
+  linkWithCredential,
+  getAuth,
+  linkWithPopup,
+  linkWithRedirect,
+  signInWithRedirect,
+  getRedirectResult,
 } from "firebase/auth";
 import { auth } from "../firebaseConfig";
+import { FirebaseError } from "firebase/app";
+import router from "next/router";
 
 interface AuthContextType {
   user: firebase.User | null;
@@ -88,13 +98,51 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
   }, [user, loading]);
 
   const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    const googleAuthProvider = new GoogleAuthProvider();
+    const githubAuthProvider = new GithubAuthProvider();
+
+    try {
+      await signInWithRedirect(auth, googleAuthProvider);
+      const result = await getRedirectResult(auth);
+      if (result) {
+        await linkWithRedirect(result.user, githubAuthProvider);
+      } else {
+        throw new Error(`Failed to sign in user GoogleAuthProvider.`);
+      }
+    } catch (error) {
+      if (
+        error instanceof FirebaseError &&
+        error.code === "auth/provider-already-linked"
+      ) {
+        // Do nothing
+      } else {
+        console.error(error);
+      }
+    }
   };
 
   const signInWithGitHub = async () => {
-    const provider = new GithubAuthProvider();
-    await signInWithPopup(auth, provider);
+    const googleAuthProvider = new GoogleAuthProvider();
+    const githubAuthProvider = new GithubAuthProvider();
+
+    try {
+      await signInWithRedirect(auth, githubAuthProvider);
+      const result = await getRedirectResult(auth);
+      if (result) {
+        await linkWithRedirect(result.user, googleAuthProvider);
+      } else {
+        throw new Error(`Failed to sign in user with GithubAuthProvider.`);
+      }
+    } catch (error) {
+      if (
+        error instanceof FirebaseError &&
+        error.code === "auth/provider-already-linked"
+      ) {
+        // Do nothing
+      } else {
+        console.error(error);
+      }
+    }
   };
 
   const signOutUser = async () => {

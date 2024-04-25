@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
@@ -7,9 +7,11 @@ import { Button } from "@nextui-org/react";
 import { VscGithub } from "react-icons/vsc";
 import Image from "next/image";
 import mindleLogo from "../../public/images/mindle_logo_and_text.png";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function SignIn() {
-  const { userLoaded, signInWithGoogle, signInWithGitHub } = useAuth();
+  const { user, loading, userLoaded, signInWithGoogle, signInWithGitHub } =
+    useAuth();
   const router = useRouter();
 
   const handleSignIn = async (provider: String) => {
@@ -30,10 +32,10 @@ export default function SignIn() {
   };
 
   useEffect(() => {
-    if (userLoaded) {
+    if (loading) {
       router.push("auth/profile");
     }
-  }, [router, userLoaded]);
+  }, [loading, router, user, userLoaded]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
@@ -41,8 +43,8 @@ export default function SignIn() {
         className="m-3"
         src={mindleLogo}
         alt="Mindle logo"
+        priority={true}
         width={175}
-        height={175}
       />
       <Button
         className="bg-white text-google_text shadow-black"

@@ -1,5 +1,12 @@
 "use client";
-
+import { useEffect, useState } from "react";
+import { db } from "../../firebaseConfig";
+import { doc, onSnapshot } from "firebase/firestore";
+import { DocumentData } from "firebase-admin/firestore";
+import LeaderboardRoundedIcon from "@mui/icons-material/LeaderboardRounded";
+import FormatListNumberedRoundedIcon from "@mui/icons-material/FormatListNumberedRounded";
+import TextFieldsRoundedIcon from "@mui/icons-material/TextFieldsRounded";
+import FormatColorTextRoundedIcon from "@mui/icons-material/FormatColorTextRounded";
 import {
   Card,
   CardBody,
@@ -12,52 +19,49 @@ import {
   TableRow,
   Tabs,
 } from "@nextui-org/react";
-import LeaderboardRoundedIcon from "@mui/icons-material/LeaderboardRounded";
-import FormatListNumberedRoundedIcon from "@mui/icons-material/FormatListNumberedRounded";
-import TextFieldsRoundedIcon from "@mui/icons-material/TextFieldsRounded";
-import FormatColorTextRoundedIcon from "@mui/icons-material/FormatColorTextRounded";
-import { DocumentData } from "firebase-admin/firestore";
-import { db } from "../../firebaseConfig";
-import { useEffect, useState } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
 import { useAuth } from "@/app/context/AuthContext";
-import React from "react";
-
-interface LeaderBoardEntry {
-  user: string;
-  averageGuesses: number;
-  averageTime: number;
-}
+import { LeaderBoard, LeaderBoardEntry } from "@/app/api/interfaces";
+import useLocalStorage from "use-local-storage";
+import { formatMilliseconds } from "@/app/utils";
 
 export default function Leaderboard() {
   const { user } = useAuth();
+  const [leaderBoard, setLeaderBoard] = useLocalStorage<DocumentData | null>(
+    "LocalBoard",
+    null
+  );
 
   const colummns = ["RANK", "USER", "AVG GUESSES", "AVG TIME"];
-  const [leaderBoard, setLeaderBoard] = useState<DocumentData | undefined>([]);
-
-  const fetchLeaderboard = async () => {
-    try {
-      const userToken: string | undefined = await user?.getIdToken();
-      const response = await fetch("../api/leaderboard?type=general", {
-        method: "GET",
-        headers: {
-          authorization: `Bearer ${userToken}`,
-          "Content-type": "application/json",
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        return data;
-      }
-    } catch (error) {
-      throw new Error(`Error fetching data: ${error}`);
-    }
-  };
 
   useEffect(() => {
-    const loadData = async () => {
-      const leaderboardObject = await fetchLeaderboard();
-      setLeaderBoard(leaderboardObject?.leaderboard);
+    const fetchLeaderboard = async (): Promise<{
+      leaderboard: LeaderBoard;
+    }> => {
+      try {
+        const userToken: string | undefined = await user?.getIdToken();
+        const response = await fetch("../api/leaderboard?type=general", {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${userToken}`,
+            "Content-type": "application/json",
+          },
+        });
+        if (response.ok) {
+          const data: { leaderboard: LeaderBoard } =
+            (await response.json()) as { leaderboard: LeaderBoard };
+          return data;
+        } else {
+          throw new Error(`Failed to fetch leaderboard: ${response.status}`);
+        }
+      } catch (error) {
+        throw new Error(`Error fetching data: ${error}`);
+      }
+    };
+
+    const syncData = async () => {
+      const leaderboardObject: { leaderboard: LeaderBoard } =
+        await fetchLeaderboard();
+      setLeaderBoard(leaderboardObject.leaderboard);
     };
 
     const unsub = onSnapshot(doc(db, "Leaderboards", "general"), (doc) => {
@@ -66,9 +70,9 @@ export default function Leaderboard() {
         setLeaderBoard(leaderboardData.leaderboard);
       }
     });
-    loadData();
+    syncData();
     return () => unsub();
-  }, []);
+  }, [setLeaderBoard, user]);
 
   return (
     <div className="flex justify-center h-[calc(100vh-65px)] w-screen bg-gray-800 text-white">
@@ -84,9 +88,6 @@ export default function Leaderboard() {
           >
             <Table aria-label="Example table with custom cells">
               <TableHeader columns={["User"]}>
-                {/* <TableColumn key="test" align="start">
-                  User
-                </TableColumn> */}
                 {colummns.map((column, i) => (
                   <TableColumn key={i} align="start">
                     {column}
@@ -99,8 +100,10 @@ export default function Leaderboard() {
                   <TableRow key={entry.user}>
                     <TableCell>{i + 1}</TableCell>
                     <TableCell>{entry.user}</TableCell>
-                    <TableCell>{entry.averageGuesses}</TableCell>
-                    <TableCell>{entry.averageTime}</TableCell>
+                    <TableCell>{entry.averageGuesses.toFixed(2)}</TableCell>
+                    <TableCell>
+                      {formatMilliseconds(entry.averageTime * 1000)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
