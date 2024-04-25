@@ -8,6 +8,7 @@ import { VscGithub } from "react-icons/vsc";
 import Image from "next/image";
 import mindleLogo from "../../public/images/mindle_logo_and_text.png";
 import ProtectedRoute from "../components/ProtectedRoute";
+import { width } from "@mui/system";
 
 export default function SignIn() {
   const { user, loading, userLoaded, signInWithGoogle, signInWithGitHub } =
@@ -40,7 +41,7 @@ export default function SignIn() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
       <Image
-        className="m-3"
+        className="m-3 w-auto h-40"
         src={mindleLogo}
         alt="Mindle logo"
         priority={true}

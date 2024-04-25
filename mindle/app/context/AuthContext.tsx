@@ -9,16 +9,10 @@ import {
   ReactNode,
 } from "react";
 import {
-  signInWithPopup,
   signOut,
   onAuthStateChanged,
   GoogleAuthProvider,
   GithubAuthProvider,
-  UserCredential,
-  User,
-  linkWithCredential,
-  getAuth,
-  linkWithPopup,
   linkWithRedirect,
   signInWithRedirect,
   getRedirectResult,

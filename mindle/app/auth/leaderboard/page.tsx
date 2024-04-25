@@ -26,20 +26,22 @@ import { formatMilliseconds } from "@/app/utils";
 
 export default function Leaderboard() {
   const { user } = useAuth();
-  const [leaderBoard, setLeaderBoard] = useLocalStorage<DocumentData | null>(
-    "LocalBoard",
-    null
-  );
+  const [leaderBoardGeneral, setLeaderBoardGeneral] =
+    useLocalStorage<DocumentData | null>("LeaderboardGeneral", null);
+  const [leaderBoardWordle, setLeaderBoardWordle] =
+    useLocalStorage<DocumentData | null>("LeaderBoardWordle", null);
 
-  const colummns = ["RANK", "USER", "AVG GUESSES", "AVG TIME"];
+  const columns = ["RANK", "USER", "AVG GUESSES", "AVG TIME"];
 
   useEffect(() => {
-    const fetchLeaderboard = async (): Promise<{
+    const fetchLeaderboard = async (
+      type: string
+    ): Promise<{
       leaderboard: LeaderBoard;
     }> => {
       try {
         const userToken: string | undefined = await user?.getIdToken();
-        const response = await fetch("../api/leaderboard?type=general", {
+        const response = await fetch(`../api/leaderboard?type=${type}`, {
           method: "GET",
           headers: {
             authorization: `Bearer ${userToken}`,
@@ -51,28 +53,50 @@ export default function Leaderboard() {
             (await response.json()) as { leaderboard: LeaderBoard };
           return data;
         } else {
-          throw new Error(`Failed to fetch leaderboard: ${response.status}`);
+          throw new Error(
+            `Failed to fetch leaderboard data: ${response.status}`
+          );
         }
       } catch (error) {
         throw new Error(`Error fetching data: ${error}`);
       }
     };
 
-    const syncData = async () => {
-      const leaderboardObject: { leaderboard: LeaderBoard } =
-        await fetchLeaderboard();
-      setLeaderBoard(leaderboardObject.leaderboard);
+    const loadData = async () => {
+      const leaderboardGeneralObject: { leaderboard: LeaderBoard } =
+        await fetchLeaderboard("general");
+      const leaderboardWordleObject: { leaderboard: LeaderBoard } =
+        await fetchLeaderboard("wordle");
+      setLeaderBoardGeneral(leaderboardGeneralObject.leaderboard);
+      setLeaderBoardWordle(leaderboardWordleObject.leaderboard);
     };
 
-    const unsub = onSnapshot(doc(db, "Leaderboards", "general"), (doc) => {
+    const unsubGeneral = onSnapshot(
+      doc(db, "Leaderboards", "general"),
+      (doc) => {
+        const leaderboardData = doc.data();
+        if (leaderboardData) {
+          setLeaderBoardGeneral(leaderboardData.leaderboard);
+        }
+      }
+    );
+
+    const unsubWordle = onSnapshot(doc(db, "Leaderboards", "wordle"), (doc) => {
       const leaderboardData = doc.data();
       if (leaderboardData) {
-        setLeaderBoard(leaderboardData.leaderboard);
+        setLeaderBoardWordle(leaderboardData.leaderboard);
       }
     });
-    syncData();
-    return () => unsub();
-  }, [setLeaderBoard, user]);
+
+    const unsubscribe = function () {
+      unsubGeneral();
+      unsubWordle();
+    };
+
+    loadData();
+
+    return () => unsubscribe();
+  }, [setLeaderBoardGeneral, setLeaderBoardWordle, user]);
 
   return (
     <div className="flex justify-center h-[calc(100vh-65px)] w-screen bg-gray-800 text-white">
@@ -88,7 +112,7 @@ export default function Leaderboard() {
           >
             <Table aria-label="Example table with custom cells">
               <TableHeader columns={["User"]}>
-                {colummns.map((column, i) => (
+                {columns.map((column, i) => (
                   <TableColumn key={i} align="start">
                     {column}
                   </TableColumn>
@@ -96,16 +120,18 @@ export default function Leaderboard() {
               </TableHeader>
 
               <TableBody>
-                {leaderBoard?.map((entry: LeaderBoardEntry, i: number) => (
-                  <TableRow key={entry.user}>
-                    <TableCell>{i + 1}</TableCell>
-                    <TableCell>{entry.user}</TableCell>
-                    <TableCell>{entry.averageGuesses.toFixed(2)}</TableCell>
-                    <TableCell>
-                      {formatMilliseconds(entry.averageTime * 1000)}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {leaderBoardGeneral?.map(
+                  (entry: LeaderBoardEntry, i: number) => (
+                    <TableRow key={entry.user}>
+                      <TableCell>{i + 1}</TableCell>
+                      <TableCell>{entry.user}</TableCell>
+                      <TableCell>{entry.averageGuesses.toFixed(2)}</TableCell>
+                      <TableCell>
+                        {formatMilliseconds(entry.averageTime * 1000)}
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
               </TableBody>
             </Table>
           </Tab>
@@ -117,14 +143,28 @@ export default function Leaderboard() {
               </div>
             }
           >
-            <Card>
-              <CardBody>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat.
-              </CardBody>
-            </Card>
+            <Table aria-label="Example table with custom cells">
+              <TableHeader columns={["User"]}>
+                {columns.map((column, i) => (
+                  <TableColumn key={i} align="start">
+                    {column}
+                  </TableColumn>
+                ))}
+              </TableHeader>
+
+              <TableBody>
+                {leaderBoardWordle?.map(
+                  (entry: LeaderBoardEntry, i: number) => (
+                    <TableRow key={entry.user}>
+                      <TableCell>{i + 1}</TableCell>
+                      <TableCell>{entry.user}</TableCell>
+                      <TableCell>{entry.averageGuesses.toFixed(2)}</TableCell>
+                      <TableCell>{entry.averageTime.toFixed(2)}</TableCell>
+                    </TableRow>
+                  )
+                )}
+              </TableBody>
+            </Table>
           </Tab>
           <Tab
             title={
