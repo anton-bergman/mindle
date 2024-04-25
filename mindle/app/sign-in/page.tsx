@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
@@ -7,8 +7,6 @@ import { Button } from "@nextui-org/react";
 import { VscGithub } from "react-icons/vsc";
 import Image from "next/image";
 import mindleLogo from "../../public/images/mindle_logo_and_text.png";
-import ProtectedRoute from "../components/ProtectedRoute";
-import { width } from "@mui/system";
 
 export default function SignIn() {
   const { user, loading, userLoaded, signInWithGoogle, signInWithGitHub } =

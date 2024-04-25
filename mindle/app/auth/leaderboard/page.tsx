@@ -32,6 +32,7 @@ export default function Leaderboard() {
     useLocalStorage<DocumentData | null>("LeaderBoardWordle", null);
 
   const columns = ["RANK", "USER", "AVG GUESSES", "AVG TIME"];
+  const dailyLeaderboardColumns = ["RANK", "USER", "GUESSES", "TIME"];
 
   useEffect(() => {
     const fetchLeaderboard = async (
@@ -119,7 +120,7 @@ export default function Leaderboard() {
                 ))}
               </TableHeader>
 
-              <TableBody>
+              <TableBody emptyContent={"No games played."}>
                 {leaderBoardGeneral?.map(
                   (entry: LeaderBoardEntry, i: number) => (
                     <TableRow key={entry.user}>
@@ -145,21 +146,23 @@ export default function Leaderboard() {
           >
             <Table aria-label="Example table with custom cells">
               <TableHeader columns={["User"]}>
-                {columns.map((column, i) => (
+                {dailyLeaderboardColumns.map((column, i) => (
                   <TableColumn key={i} align="start">
                     {column}
                   </TableColumn>
                 ))}
               </TableHeader>
 
-              <TableBody>
+              <TableBody emptyContent={"No Wordle games played today."}>
                 {leaderBoardWordle?.map(
                   (entry: LeaderBoardEntry, i: number) => (
                     <TableRow key={entry.user}>
                       <TableCell>{i + 1}</TableCell>
                       <TableCell>{entry.user}</TableCell>
-                      <TableCell>{entry.averageGuesses.toFixed(2)}</TableCell>
-                      <TableCell>{entry.averageTime.toFixed(2)}</TableCell>
+                      <TableCell>{entry.averageGuesses}</TableCell>
+                      <TableCell>
+                        {formatMilliseconds(entry.averageTime * 1000)}
+                      </TableCell>
                     </TableRow>
                   )
                 )}
@@ -174,14 +177,19 @@ export default function Leaderboard() {
               </div>
             }
           >
-            <Card>
-              <CardBody>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat.
-              </CardBody>
-            </Card>
+            <Table aria-label="Example table with custom cells">
+              <TableHeader columns={["User"]}>
+                {dailyLeaderboardColumns.map((column, i) => (
+                  <TableColumn key={i} align="start">
+                    {column}
+                  </TableColumn>
+                ))}
+              </TableHeader>
+
+              <TableBody emptyContent={"No Ordle games played today."}>
+                {[]}
+              </TableBody>
+            </Table>
           </Tab>
           <Tab
             title={
@@ -191,14 +199,19 @@ export default function Leaderboard() {
               </div>
             }
           >
-            <Card>
-              <CardBody>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat.
-              </CardBody>
-            </Card>
+            <Table aria-label="Example table with custom cells">
+              <TableHeader columns={["User"]}>
+                {dailyLeaderboardColumns.map((column, i) => (
+                  <TableColumn key={i} align="start">
+                    {column}
+                  </TableColumn>
+                ))}
+              </TableHeader>
+
+              <TableBody emptyContent={"No Stepdle games played today."}>
+                {[]}
+              </TableBody>
+            </Table>
           </Tab>
         </Tabs>
       </div>
