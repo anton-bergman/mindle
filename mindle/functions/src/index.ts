@@ -174,7 +174,13 @@ async function createleaderboard(userSessions: UsersSessions) {
 async function createGeneralLeaderboard(): Promise<void> {
   const userSessions = await getUserSessions();
   const leaderboard = await createleaderboard(userSessions);
-  leaderboard.sort((a, b) => a.averageGuesses - b.averageGuesses);
+  leaderboard.sort((a, b) => {
+    if (a.averageGuesses !== b.averageGuesses) {
+      return a.averageGuesses - b.averageGuesses;
+    } else {
+      return a.averageTime - b.averageTime;
+    }
+  });
   await admin
     .firestore()
     .doc("/Leaderboards/general")
@@ -224,7 +230,13 @@ async function createDailyWordleleaderboard(): Promise<void> {
       })
     );
 
-    leaderboard.sort((a, b) => a.averageGuesses - b.averageGuesses);
+    leaderboard.sort((a, b) => {
+      if (a.averageGuesses !== b.averageGuesses) {
+        return a.averageGuesses - b.averageGuesses;
+      } else {
+        return a.averageTime - b.averageTime;
+      }
+    });
     await admin
       .firestore()
       .doc("/Leaderboards/wordle")
