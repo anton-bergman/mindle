@@ -8,9 +8,7 @@ import {
 } from "react";
 import useLocalStorage from "use-local-storage";
 import { useAuth } from "@/app/context/AuthContext";
-import Vocabulary from "@/app/api/vocabulary/route";
-import Game from "@/app/api/games/route";
-import PlayedGame from "@/app/api/played-games/route";
+import { Vocabulary, Game, PlayedGame } from "@/app/api/interfaces";
 
 interface LocalStorageGameState {
   currentGuess: number;

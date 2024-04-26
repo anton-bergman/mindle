@@ -1,6 +1,6 @@
-import {onSchedule} from "firebase-functions/v2/scheduler";
+import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
-import {DocumentData} from "firebase-admin/firestore";
+import { DocumentData, QueryDocumentSnapshot } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
 
 admin.initializeApp();
@@ -74,7 +74,7 @@ export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
       await admin
         .firestore()
         .doc("Games/wordle")
-        .update({dailyWord: randomWord, previousWords: previousWords});
+        .update({ dailyWord: randomWord, previousWords: previousWords });
     } catch (e) {
       console.log(e);
     }
@@ -90,7 +90,7 @@ export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
     await admin
       .firestore()
       .doc("/Leaderboards/wordle")
-      .update({leaderboard: []});
+      .update({ leaderboard: [] });
   }
 
   await generateDailyWordleWord();
@@ -112,7 +112,7 @@ async function getUserSessions() {
 
   const userSessions: UsersSessions = {};
 
-  gameSessionsSnapshot.docs.map((doc) => {
+  gameSessionsSnapshot.docs.map((doc: QueryDocumentSnapshot) => {
     const data = doc.data();
     const id = data.userId;
     if (id in userSessions) {
@@ -178,7 +178,7 @@ async function createGeneralLeaderboard(): Promise<void> {
   await admin
     .firestore()
     .doc("/Leaderboards/general")
-    .update({leaderboard: leaderboard});
+    .update({ leaderboard: leaderboard });
 }
 
 /**
@@ -206,7 +206,7 @@ async function createDailyWordleleaderboard(): Promise<void> {
       .where("startTime", "<=", dateEndUnix)
       .get();
     const playedGames: PlayedGame[] = snapshot.docs.map(
-      (doc) => doc.data() as PlayedGame
+      (doc: QueryDocumentSnapshot) => doc.data() as PlayedGame
     );
     const leaderboard: leaderboard = [];
 
@@ -228,7 +228,7 @@ async function createDailyWordleleaderboard(): Promise<void> {
     await admin
       .firestore()
       .doc("/Leaderboards/wordle")
-      .update({leaderboard: leaderboard});
+      .update({ leaderboard: leaderboard });
   } catch (error) {
     console.log(error);
   }
