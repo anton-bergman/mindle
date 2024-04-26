@@ -140,6 +140,7 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
   };
 
   const signOutUser = async () => {
+    localStorage.clear();
     await signOut(auth);
   };
 
