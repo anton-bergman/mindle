@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
+  // TESTING COMMENT to be removed later
   const router = useRouter();
   useEffect(() => {
     router.push("./sign-in");
