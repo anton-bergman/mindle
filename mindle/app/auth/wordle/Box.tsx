@@ -19,6 +19,62 @@ export default function Box({
   const [isBoxFrontFacing, setIsBoxFrontFacing] = useState<boolean>(true);
   const { word, currentGuess, gameLoaded } = useWordle();
 
+  function findAllIndexes(word: string, letter: string): Array<number> {
+    const indexes: Array<number> = [];
+    for (let i = 0; i < word.length; i++) {
+      if (word[i] === letter) {
+        indexes.push(i);
+      }
+    }
+    return indexes;
+  }
+
+  const haveMatchingElements = (
+    array1: Array<number>,
+    array2: Array<number>
+  ): boolean => {
+    return array1.some((element) => array2.includes(element));
+  };
+
+  const calculateBackgroundColor = (
+    word: string,
+    guess: string,
+    col: number,
+    isGuessed: boolean
+  ): string => {
+    const greenColor: string = "bg-green-700";
+    const yellowColor: string = "bg-yellow-500";
+    const grayNotGuessedColor: string = "bg-neutral-900";
+    const grayIncorrectGuessColor: string = "bg-neutral-700";
+
+    const guessLetter = guess[col];
+
+    if (!isGuessed) {
+      return grayNotGuessedColor;
+    }
+
+    if (guessLetter === word[col]) {
+      return greenColor;
+    }
+
+    if (word.includes(guessLetter)) {
+      const wordIndexes = findAllIndexes(word, guessLetter);
+      const guessIndexes = findAllIndexes(guess, guessLetter);
+
+      if (haveMatchingElements(wordIndexes, guessIndexes)) {
+        return grayIncorrectGuessColor;
+      }
+
+      const wordOccurrences = wordIndexes.length;
+      for (let i = 0; i < guessIndexes.length; i++) {
+        if (i + 1 <= wordOccurrences && col === guessIndexes[i]) {
+          return yellowColor;
+        }
+      }
+    }
+    return grayIncorrectGuessColor;
+  };
+
   useEffect(() => {
     if (
       isGuessed &&
@@ -38,21 +94,14 @@ export default function Box({
     triggerFlipAnimation,
   ]);
 
-  const backgroundColor = !isGuessed
-    ? "bg-neutral-900"
-    : guess[col] === word[col]
-    ? "bg-green-700"
-    : word.includes(guess[col])
-    ? "bg-yellow-500"
-    : "bg-neutral-700";
+  const backgroundColor = calculateBackgroundColor(word, guess, col, isGuessed);
+  const borderColor =
+    backgroundColor === "bg-green-700"
+      ? "border-green-700"
+      : backgroundColor === "bg-yellow-500"
+      ? "border-yellow-500"
+      : "border-neutral-700";
 
-  const borderColor = !isGuessed
-    ? "border-neutral-700"
-    : guess[col] === word[col]
-    ? "border-green-700"
-    : word.includes(guess[col])
-    ? "border-yellow-500"
-    : "border-neutral-700";
   return (
     // --- WITHOUT vertical-card-flip animation on each box ---
     // <div
