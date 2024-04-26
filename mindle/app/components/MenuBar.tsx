@@ -109,7 +109,7 @@ export default function MenuBar() {
             <DropdownTrigger>
               <Button
                 disableRipple
-                className="text-white bg-transparent data-[hover=true]:bg-transparent text-medium"
+                className="text-white bg-transparent data-[hover=true]:bg-transparent text-medium font-light"
                 //className="text-white"
                 endContent={icons.chevron}
                 radius="sm"
