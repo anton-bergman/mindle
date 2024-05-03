@@ -14,6 +14,8 @@ import {
   GoogleAuthProvider,
   GithubAuthProvider,
   linkWithRedirect,
+  signInWithPopup,
+  linkWithPopup,
   signInWithRedirect,
   getRedirectResult,
 } from "firebase/auth";
@@ -96,8 +98,8 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
     const githubAuthProvider = new GithubAuthProvider();
 
     try {
-      await signInWithRedirect(auth, googleAuthProvider);
-      const result = await getRedirectResult(auth);
+      const result = await signInWithPopup(auth, googleAuthProvider);
+      // const result = await getRedirectResult(auth);
       if (result) {
         await linkWithRedirect(result.user, githubAuthProvider);
       } else {
@@ -120,8 +122,8 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
     const githubAuthProvider = new GithubAuthProvider();
 
     try {
-      await signInWithRedirect(auth, githubAuthProvider);
-      const result = await getRedirectResult(auth);
+      const result = await signInWithPopup(auth, githubAuthProvider);
+      // const result = await getRedirectResult(auth);
       if (result) {
         await linkWithRedirect(result.user, googleAuthProvider);
       } else {
