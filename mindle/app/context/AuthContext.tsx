@@ -15,13 +15,9 @@ import {
   GithubAuthProvider,
   linkWithRedirect,
   signInWithPopup,
-  linkWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
 } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { FirebaseError } from "firebase/app";
-import router from "next/router";
 
 interface AuthContextType {
   user: firebase.User | null;
@@ -99,7 +95,6 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
 
     try {
       const result = await signInWithPopup(auth, googleAuthProvider);
-      // const result = await getRedirectResult(auth);
       if (result) {
         await linkWithRedirect(result.user, githubAuthProvider);
       } else {
@@ -123,7 +118,6 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
 
     try {
       const result = await signInWithPopup(auth, githubAuthProvider);
-      // const result = await getRedirectResult(auth);
       if (result) {
         await linkWithRedirect(result.user, googleAuthProvider);
       } else {
