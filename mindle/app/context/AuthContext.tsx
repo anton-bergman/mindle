@@ -16,6 +16,9 @@ import {
   getRedirectResult,
   linkWithRedirect,
   signInWithRedirect,
+  signInWithPopup,
+  linkWithPopup,
+  linkWithCredential,
 } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { FirebaseError } from "firebase/app";
@@ -95,21 +98,14 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
     const githubAuthProvider = new GithubAuthProvider();
 
     try {
-      await signInWithRedirect(auth, googleAuthProvider);
-      const result = await getRedirectResult(auth);
-      // const result = await signInWithPopup(auth, googleAuthProvider);
-
-      if (result) {
-        await linkWithRedirect(result.user, githubAuthProvider);
-      } else {
-        throw new Error(`Failed to sign in user GoogleAuthProvider.`);
-      }
+      const result = await signInWithPopup(auth, googleAuthProvider);
     } catch (error) {
       if (
         error instanceof FirebaseError &&
-        error.code === "auth/provider-already-linked"
+        error.code === "auth/account-exists-with-different-credential"
       ) {
-        // Do nothing
+        const result = await signInWithPopup(auth, githubAuthProvider);
+        await linkWithPopup(result.user, googleAuthProvider);
       } else {
         console.error(error);
       }
@@ -121,22 +117,14 @@ export const AuthContextProvider = ({ children }: AuthProps) => {
     const githubAuthProvider = new GithubAuthProvider();
 
     try {
-      // const result = await signInWithPopup(auth, githubAuthProvider);
-      await signInWithRedirect(auth, githubAuthProvider);
-      const result = await getRedirectResult(auth);
-      // const result = await signInWithPopup(auth, githubAuthProvider);
-
-      if (result) {
-        await linkWithRedirect(result.user, googleAuthProvider);
-      } else {
-        throw new Error(`Failed to sign in user with GithubAuthProvider.`);
-      }
+      const result = await signInWithPopup(auth, githubAuthProvider);
     } catch (error) {
       if (
         error instanceof FirebaseError &&
-        error.code === "auth/provider-already-linked"
+        error.code === "auth/account-exists-with-different-credential"
       ) {
-        // Do nothing
+        const result = await signInWithPopup(auth, googleAuthProvider);
+        await linkWithPopup(result.user, githubAuthProvider);
       } else {
         console.error(error);
       }

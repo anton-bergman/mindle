@@ -31,7 +31,7 @@ export default function SignIn() {
   };
 
   useEffect(() => {
-    if (loading) {
+    if (userLoaded) {
       router.push("auth/profile");
     }
   }, [loading, router, user, userLoaded]);
