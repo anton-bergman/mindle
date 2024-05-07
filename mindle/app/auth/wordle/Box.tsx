@@ -121,7 +121,7 @@ export default function Box({
       } flex flex-col justify-center items-center w-[52px] h-[52px]`}
     >
       <div
-        className={`absolute w-[52px] h-[52px] flex justify-center items-center border-2 border-neutral-700 p-0.5 rounded bg-neutral-900 font-bold uppercase text-3xl text-white transition-opacity duration-0 delay-[125ms] ${
+        className={`absolute w-[52px] h-[52px] flex justify-center items-center border-2 border-neutral-700 p-0.5 rounded bg-neutral-900 font-bold uppercase text-3xl text-text_color transition-opacity duration-0 delay-[125ms] ${
           isBoxFrontFacing ? "" : "opacity-0"
         } ${
           isGuessed && currentGuess - 1 === row && triggerFlipAnimation
@@ -132,7 +132,7 @@ export default function Box({
         {guess[col]}
       </div>
       <div
-        className={`absolute w-[52px] h-[52px] flex justify-center items-center border-2 ${borderColor} p-0.5 rounded ${backgroundColor} font-bold uppercase text-3xl text-white transition-opacity duration-0 delay-[125ms] ${
+        className={`absolute w-[52px] h-[52px] flex justify-center items-center border-2 ${borderColor} p-0.5 rounded ${backgroundColor} font-bold uppercase text-3xl text-text_color transition-opacity duration-0 delay-[125ms] ${
           !isBoxFrontFacing ? "" : "opacity-0"
         } ${
           isGuessed && currentGuess - 1 === row && triggerFlipAnimation

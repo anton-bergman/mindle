@@ -2,7 +2,7 @@
  * Converts milliseconds to a formatted time string.
  *
  * @param milliseconds - The number of milliseconds to convert.
- * @returns A string representing the time in the format HH:MM:SS, MM:SS or SS, depending on the duration.
+ * @returns A string representing the time in the format HH:MM:SS or MM:SS, depending on the duration.
  */
 function formatMilliseconds(milliseconds: number): string {
   // Convert milliseconds to seconds
@@ -22,10 +22,8 @@ function formatMilliseconds(milliseconds: number): string {
   // Construct the formatted time string
   if (hours > 0) {
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-  } else if (minutes > 0) {
-    return `${formattedMinutes}:${formattedSeconds}`;
   } else {
-    return `${formattedSeconds}`;
+    return `${formattedMinutes}:${formattedSeconds}`;
   }
 }
 

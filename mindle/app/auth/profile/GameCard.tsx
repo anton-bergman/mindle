@@ -18,7 +18,7 @@ export default function GameCard({ title, subTitle }: GameCardProps) {
         <p className="text-tiny text-white/60 uppercase font-bold">
           {subTitle}
         </p>
-        <h4 className="text-white font-medium text-2xl">{title}</h4>
+        <h4 className="text-text_color font-medium text-2xl">{title}</h4>
       </CardHeader>
       <Image
         removeWrapper

@@ -100,7 +100,7 @@ export default function Leaderboard() {
   }, [setLeaderBoardGeneral, setLeaderBoardWordle, user]);
 
   return (
-    <div className="flex justify-center h-[calc(100vh-65px)] w-screen bg-gray-800 text-white overflow-y-auto">
+    <div className="flex justify-center h-[calc(100vh-65px)] w-screen bg-gray-800 text-text_color overflow-y-auto">
       <div className="mt-8 w-2/3">
         <Tabs>
           <Tab

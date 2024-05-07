@@ -93,7 +93,7 @@ export default function GameOverPopup() {
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        className="dark"
+        className="dark text-text_color"
         size="sm"
       >
         <ModalContent className="flex flex-col items-center justify-center">

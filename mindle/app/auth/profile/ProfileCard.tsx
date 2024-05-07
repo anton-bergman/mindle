@@ -106,7 +106,7 @@ export default function ProfileCard() {
           src={user?.photoURL || ""}
         />
         <div className="flex flex-col">
-          <h4 className="text-white font-medium text-2xl">
+          <h4 className="text-text_color font-medium text-2xl">
             {user?.displayName}
           </h4>
           <p className="text-xs text-white/60 uppercase font-bold">
@@ -122,7 +122,7 @@ export default function ProfileCard() {
               {profileStats ? profileStats.rank : "-"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent>
+          <PopoverContent className="text-text_color">
             <div className="px-1 py-2">
               <div className="text-small font-bold">Rank</div>
               <div className="text-tiny">
@@ -140,7 +140,7 @@ export default function ProfileCard() {
               {profileStats ? profileStats.streak : "-"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent>
+          <PopoverContent className="text-text_color">
             <div className="px-1 py-2">
               <div className="text-small font-bold">Streak</div>
               <div className="text-tiny">
@@ -158,7 +158,7 @@ export default function ProfileCard() {
               {profileStats ? profileStats.gamesPlayed : "-"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent>
+          <PopoverContent className="text-text_color">
             <div className="px-1 py-2">
               <div className="text-small font-bold">Total Games Played</div>
               <div className="text-tiny">

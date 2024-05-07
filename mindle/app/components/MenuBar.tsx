@@ -109,8 +109,7 @@ export default function MenuBar() {
             <DropdownTrigger>
               <Button
                 disableRipple
-                className="text-white bg-transparent data-[hover=true]:bg-transparent text-medium font-light"
-                //className="text-white"
+                className="text-text_color bg-transparent data-[hover=true]:bg-transparent text-medium font-light"
                 endContent={icons.chevron}
                 radius="sm"
                 variant="light"
@@ -128,7 +127,7 @@ export default function MenuBar() {
           >
             <DropdownItem
               key="wordle-link"
-              className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white"
+              className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-text_color text-text_color"
               description="Guess a new word each day!"
               startContent={icons.wordle}
               onClick={() => {
@@ -140,7 +139,7 @@ export default function MenuBar() {
             </DropdownItem>
             <DropdownItem
               key="ordle-link"
-              className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white"
+              className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-text_color text-text_color"
               description="Comming soon."
               startContent={icons.ordle}
               onClick={() => {
@@ -152,7 +151,7 @@ export default function MenuBar() {
             </DropdownItem>
             <DropdownItem
               key="stepdle-link"
-              className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white"
+              className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-text_color text-text_color"
               description="Comming soon."
               startContent={icons.stepdle}
               onClick={() => {
@@ -212,7 +211,7 @@ export default function MenuBar() {
           <DropdownMenu aria-label="Profile Actions" variant="flat">
             <DropdownItem
               key="profile"
-              className="h-14 gap-2 data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white"
+              className="h-14 gap-2 data-[hover=true]:bg-zinc-700 data-[hover=true]:text-text_color text-text_color"
               onClick={() => router.push("./profile")}
               textValue="user-signed-in-as"
             >
@@ -225,7 +224,12 @@ export default function MenuBar() {
             >
               Settings
             </DropdownItem> */}
-            <DropdownItem key="logout" color="danger" onClick={handleSignOut}>
+            <DropdownItem
+              key="logout"
+              className="text-[#f31260]"
+              color="danger"
+              onClick={handleSignOut}
+            >
               Log Out
             </DropdownItem>
           </DropdownMenu>
