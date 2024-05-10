@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useWordle } from "./WordleContext";
+import { useWordle } from "@/app/context/WordleOrdleContext";
 import { calculateBackgroundColor } from "@/app/utils";
 
 interface BoxProps {

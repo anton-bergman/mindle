@@ -1,5 +1,5 @@
 import React from "react";
-import { useWordle } from "./WordleContext";
+import { useWordle } from "../context/WordleOrdleContext";
 import BackspaceIcon from "@mui/icons-material/Backspace";
 
 export default function Keyboard() {

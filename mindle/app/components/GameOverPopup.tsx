@@ -7,7 +7,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
-import { useWordle } from "./WordleContext";
+import { useWordle } from "../context/WordleOrdleContext";
 
 interface TimeObject {
   hours: string;

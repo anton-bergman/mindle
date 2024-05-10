@@ -1,9 +1,9 @@
 "use client";
 import { useEffect } from "react";
-import Guess from "./Guess";
-import { useWordle } from "./WordleContext";
-import Keyboard from "./Keyboard";
-import GameOverPopup from "./GameOverPopup";
+import Guess from "../../components/Guess";
+import { useWordle } from "../../context/WordleOrdleContext";
+import Keyboard from "../../components/Keyboard";
+import GameOverPopup from "../../components/GameOverPopup";
 
 export default function Wordle() {
   const { currentGuess, guesses, handleKeyup, isGameOver } = useWordle();
