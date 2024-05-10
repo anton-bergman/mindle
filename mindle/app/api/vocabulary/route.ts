@@ -13,6 +13,33 @@ export async function GET(req: NextRequest) {
       if (req.nextUrl.searchParams.has("name")) {
         const vocabularyName: string | null =
           req.nextUrl.searchParams.get("name");
+
+        if (
+          vocabularyName === "englishWords6" ||
+          vocabularyName === "englishWords7"
+        ) {
+          const snapshot = await db
+            .collection(`/Vocabularies/${vocabularyName}/vocabulary`)
+            .get();
+
+          let words: Array<string> = [];
+          let wordLength: number = -1;
+          snapshot.forEach((doc) => {
+            const subsetOfWords: Array<string> = doc.data().words;
+
+            wordLength = doc.data().wordLength;
+            words = words.concat(subsetOfWords);
+          });
+
+          const data: Vocabulary = {
+            wordLength: wordLength,
+            words: words,
+          };
+          return new Response(JSON.stringify(data), {
+            status: 200,
+          });
+        }
+
         const vocabDocument = await db
           .doc(`/Vocabularies/${vocabularyName}`)
           .get();

@@ -21,8 +21,6 @@ export default function Wordle() {
   return (
     <div className="flex flex-col items-center justify-center h-[calc(100vh-65px)] bg-gray-900 text-text_color">
       {/* TODO: Above, the values 65px must always equal the height of the navbar */}
-
-      {/* <h1 className="text-4xl font-bold mb-8">Build Wordle here!</h1> */}
       {guesses.map((_, i) => (
         <Guess
           key={i}

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useWordle } from "./WordleContext";
+import { useStepdle } from "./StepdleContext";
 import { calculateBackgroundColor } from "@/app/utils";
 
 interface BoxProps {
   row: number;
   col: number;
   guess: string;
+  targetWord: string;
   isGuessed: boolean;
   triggerFlipAnimation: boolean;
 }
@@ -14,11 +15,12 @@ export default function Box({
   row,
   col,
   guess,
+  targetWord,
   isGuessed,
   triggerFlipAnimation,
 }: BoxProps) {
   const [isBoxFrontFacing, setIsBoxFrontFacing] = useState<boolean>(true);
-  const { word, currentGuess, gameLoaded } = useWordle();
+  const { currentGuess, gameLoaded } = useStepdle();
 
   useEffect(() => {
     if (
@@ -39,7 +41,12 @@ export default function Box({
     triggerFlipAnimation,
   ]);
 
-  const backgroundColor = calculateBackgroundColor(word, guess, col, isGuessed);
+  const backgroundColor = calculateBackgroundColor(
+    targetWord,
+    guess,
+    col,
+    isGuessed
+  );
   const borderColor =
     backgroundColor === "bg-green-700"
       ? "border-green-700"
@@ -51,7 +58,7 @@ export default function Box({
     // --- WITHOUT vertical-card-flip animation on each box ---
     // <div
     //   key={`row-${row}-col${col}`}
-    //   className={`flex  items-center justify-center h-14 w-14 p-0.5 border-2 ${borderColor} rounded font-bold uppercase text-3xl text-white ${backgroundColor}`}
+    //   className={`flex items-center justify-center h-14 w-14 p-0.5 border-2 ${borderColor} rounded font-bold uppercase text-3xl text-white ${backgroundColor}`}
     // >
     //   {guess[col]}
     // </div>
