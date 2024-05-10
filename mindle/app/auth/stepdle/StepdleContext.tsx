@@ -312,8 +312,6 @@ export const StepdleContextProvider = ({ children }: StepdleProps) => {
     const addPlayedGame = async (
       playedGame: PlayedStepdleGame
     ): Promise<void> => {
-      console.log("ADD PLAYED GAME!");
-      return;
       try {
         const userToken: string | undefined = await user?.getIdToken();
         const response = await fetch("../api/played-games", {

@@ -1,6 +1,6 @@
-import { onSchedule } from "firebase-functions/v2/scheduler";
+import {onSchedule} from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
-import { DocumentData, QueryDocumentSnapshot } from "firebase-admin/firestore";
+import {DocumentData, QueryDocumentSnapshot} from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
 
 admin.initializeApp();
@@ -31,25 +31,31 @@ type leaderboard = leaderboardEntry[];
  */
 export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
   /**
-   * Generates a daily word for the Wordle game and updates the game data.
+   * Generates a daily word for the specified game type and updates
+   * the game data.
    * This function retrieves a list of words, selects a random word that
-   * has not been used before,and updates the game data with the selected
-   * word and the list of previous words.
-   * If the list of previous words reaches a certain length, the oldest
-   * word is removed.
-   * @return {Promise<void>} A promise indicating the completion of
-   * the operation.
+   * has not been used before, and updates the game data with the selected
+   * word and the list of previous words. If the list of previous words
+   * reaches a certain length, the oldest word is removed.
+   * @param {string} gameType - The type of the game ("wordle" or "ordle").
+   * @param {string} vocab - The name of the vocabulary Firestore
+   * document.
+   * @return {Promise<void>} A promise indicating the completion
+   * of the operation.
    */
-  async function generateDailyWordleWord(): Promise<void> {
+  async function generateDailyWordleOrdleWord(
+    gameType: string,
+    vocab: string
+  ): Promise<void> {
     try {
       const wordleWordsSnapshot = await admin
         .firestore()
-        .doc("Vocabularies/englishWords5")
+        .doc(`Vocabularies/${vocab}`)
         .get();
 
       const dailyWorldeSnapshot = await admin
         .firestore()
-        .doc("Games/wordle")
+        .doc(`Games/${gameType}`)
         .get();
 
       const wordsData: DocumentData | undefined = wordleWordsSnapshot.data();
@@ -73,12 +79,13 @@ export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
 
       await admin
         .firestore()
-        .doc("Games/wordle")
-        .update({ dailyWord: randomWord, previousWords: previousWords });
+        .doc(`Games/${gameType}`)
+        .update({dailyWord: randomWord, previousWords: previousWords});
     } catch (e) {
       console.log(e);
     }
   }
+
   /**
    * Resets the leaderboard for the Wordle game.
    * This function clears the leaderboard data in the Firestore
@@ -90,10 +97,11 @@ export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
     await admin
       .firestore()
       .doc("/Leaderboards/wordle")
-      .update({ leaderboard: [] });
+      .update({leaderboard: []});
   }
 
-  await generateDailyWordleWord();
+  await generateDailyWordleOrdleWord("wordle", "englishWords5");
+  await generateDailyWordleOrdleWord("ordle", "swedishWords5");
   await resetWordleLeaderboard();
 });
 
@@ -184,18 +192,19 @@ async function createGeneralLeaderboard(): Promise<void> {
   await admin
     .firestore()
     .doc("/Leaderboards/general")
-    .update({ leaderboard: leaderboard });
+    .update({leaderboard: leaderboard});
 }
 
 /**
- * Creates the daily Wordle leaderboard for the current day.
+ * Creates the daily leaderboard for the specified game.
  * Retrieves played games for the current day, generates the
- * leaderboard, sorts it by average guesses, and updates the
- * Firestore document for the daily Wordle leaderboard.
+ * leaderboard, sorts it by average guesses and average time,
+ * and updates the Firestore document for the daily leaderboard.
+ * @param {string} game - The name of the game.
  * @return {Promise<void>} A promise that resolves once the
  * leaderboard is created and updated.
  */
-async function createDailyWordleleaderboard(): Promise<void> {
+async function createDailyWordleleaderboard(game: string): Promise<void> {
   const date = new Date();
   date.setHours(0);
   date.setMinutes(0);
@@ -204,12 +213,14 @@ async function createDailyWordleleaderboard(): Promise<void> {
 
   const dateStartUnix: number = date.getTime();
   const dateEndUnix: number = dateStartUnix + 24 * 60 * 60 * 1000 - 1;
+  const gameType = `Games/${game}`;
   try {
     const snapshot = await admin
       .firestore()
       .collection("/PlayedGames")
       .where("startTime", ">=", dateStartUnix)
       .where("startTime", "<=", dateEndUnix)
+      .where("gameType", "==", gameType)
       .get();
     const playedGames: PlayedGame[] = snapshot.docs.map(
       (doc: QueryDocumentSnapshot) => doc.data() as PlayedGame
@@ -239,8 +250,8 @@ async function createDailyWordleleaderboard(): Promise<void> {
     });
     await admin
       .firestore()
-      .doc("/Leaderboards/wordle")
-      .update({ leaderboard: leaderboard });
+      .doc(`/Leaderboards/${game}`)
+      .update({leaderboard: leaderboard});
   } catch (error) {
     console.log(error);
   }
@@ -248,10 +259,12 @@ async function createDailyWordleleaderboard(): Promise<void> {
 
 export const createLeaderboards = functions.firestore
   .document("/PlayedGames/{gameId}")
-  .onCreate(async () => {
+  .onCreate(async (change) => {
     try {
+      const newData = change.data();
+
       await createGeneralLeaderboard();
-      await createDailyWordleleaderboard();
+      await createDailyWordleleaderboard(newData.gameType.split("/")[1]);
     } catch (error) {
       console.log(error);
     }

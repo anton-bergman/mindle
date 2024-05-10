@@ -30,6 +30,8 @@ export default function Leaderboard() {
     useLocalStorage<DocumentData | null>("LeaderboardGeneral", null);
   const [leaderBoardWordle, setLeaderBoardWordle] =
     useLocalStorage<DocumentData | null>("LeaderBoardWordle", null);
+  const [leaderBoardOrdle, setLeaderBoardOrdle] =
+    useLocalStorage<DocumentData | null>("LeaderBoardOrdle", null);
 
   const columns = ["RANK", "USER", "AVG GUESSES", "AVG TIME"];
   const dailyLeaderboardColumns = ["RANK", "USER", "GUESSES", "TIME"];
@@ -68,8 +70,11 @@ export default function Leaderboard() {
         await fetchLeaderboard("general");
       const leaderboardWordleObject: { leaderboard: LeaderBoard } =
         await fetchLeaderboard("wordle");
+      const leaderboardOrdleObject: { leaderboard: LeaderBoard } =
+        await fetchLeaderboard("ordle");
       setLeaderBoardGeneral(leaderboardGeneralObject.leaderboard);
       setLeaderBoardWordle(leaderboardWordleObject.leaderboard);
+      setLeaderBoardOrdle(leaderboardOrdleObject.leaderboard);
     };
 
     const unsubGeneral = onSnapshot(
@@ -89,9 +94,17 @@ export default function Leaderboard() {
       }
     });
 
+    const unsubOrdle = onSnapshot(doc(db, "Leaderboards", "ordle"), (doc) => {
+      const leaderboardData = doc.data();
+      if (leaderboardData) {
+        setLeaderBoardOrdle(leaderboardData.leaderboard);
+      }
+    });
+
     const unsubscribe = function () {
       unsubGeneral();
       unsubWordle();
+      unsubOrdle();
     };
 
     loadData();
@@ -187,7 +200,16 @@ export default function Leaderboard() {
               </TableHeader>
 
               <TableBody emptyContent={"No Ordle games played today."}>
-                {[]}
+                {leaderBoardOrdle?.map((entry: LeaderBoardEntry, i: number) => (
+                  <TableRow key={entry.user}>
+                    <TableCell>{i + 1}</TableCell>
+                    <TableCell>{entry.user}</TableCell>
+                    <TableCell>{entry.averageGuesses}</TableCell>
+                    <TableCell>
+                      {formatMilliseconds(entry.averageTime * 1000)}
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </Tab>
