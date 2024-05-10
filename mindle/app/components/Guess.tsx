@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Box from "./Box";
-import { useWordle } from "./WordleContext";
+import { useWordle } from "../context/WordleOrdleContext";
 
 interface GuessProps {
   row: number;

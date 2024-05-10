@@ -40,7 +40,7 @@ interface WordleContextType {
 interface WordleProps {
   //children: string | JSX.Element | JSX.Element[] | (() => JSX.Element);
   children: ReactNode;
-  gameLanguage: string;
+  gameType: string;
 }
 
 const WordleContext = createContext<WordleContextType>({
@@ -61,15 +61,14 @@ const WordleContext = createContext<WordleContextType>({
   handleKeyup: () => {},
 });
 
-export const WordleContextProvider = ({
-  children,
-  gameLanguage,
-}: WordleProps) => {
+export const WordleContextProvider = ({ children, gameType }: WordleProps) => {
+  const localStorageKey =
+    gameType === "ordle" ? "OrdleGameState" : "WordleGameState";
   const { user } = useAuth();
   const [vocabulary, setVocabulary] = useState<Array<string>>([""]);
   const wordLength = 5;
   const maxNumGuesses = 6;
-  const language: string = gameLanguage;
+  const language: string = gameType === "wordle" ? "eng" : "swe";
 
   const [word, setWord] = useState<string>("");
   const [currentGuess, setCurrentGuess] = useState<number>(0);
@@ -93,7 +92,7 @@ export const WordleContextProvider = ({
   // Function to load data from local storage
   const loadFromLocalStorage = () => {
     const localStorageGameState: string | null =
-      localStorage.getItem("GameState");
+      localStorage.getItem(localStorageKey);
     const todayUnix = new Date().setHours(0, 0, 0, 0);
     if (
       localStorageGameState &&
@@ -163,7 +162,7 @@ export const WordleContextProvider = ({
     const todayStartTime: number = new Date().setHours(0, 0, 0, 0);
     const playedGames: Array<PlayedGame> = await fetchPlayedGames(
       todayStartTime,
-      "wordle",
+      gameType,
       user!.uid
     );
     const playedGameToday: PlayedGame = playedGames[0];
@@ -238,8 +237,10 @@ export const WordleContextProvider = ({
 
     loadFromLocalStorage();
     const loadVocabulary = async () => {
-      const vocabulary: Vocabulary = await fetchVocabulary("englishWords5");
-      const dailyGameData: Game = await fetchDailyGameData("wordle");
+      const vocabName =
+        gameType === "wordle" ? "englishWords5" : "swedishWords5";
+      const vocabulary: Vocabulary = await fetchVocabulary(vocabName);
+      const dailyGameData: Game = await fetchDailyGameData(gameType);
       setVocabulary(vocabulary.words);
       setWord(dailyGameData.dailyWord);
     };
@@ -278,7 +279,7 @@ export const WordleContextProvider = ({
 
         const newGame: PlayedGame = {
           userId: `Users/${user!.uid}`,
-          gameType: "Games/wordle",
+          gameType: `Games/${gameType}`,
           startTime: startTime,
           endTime: endTimeUnix,
           numberOfGuesses: currentGuess,
@@ -296,7 +297,7 @@ export const WordleContextProvider = ({
   }, [isGameOver, user]);
 
   const [gameState, setGameState] = useLocalStorage<LocalStorageGameState>(
-    "GameState",
+    localStorageKey,
     {
       currentGuess: currentGuess,
       guesses: guesses,
@@ -331,7 +332,7 @@ export const WordleContextProvider = ({
           setTriggerShakeAnimation(true);
         }
       };
-
+      const regex = gameType === "wordle" ? /^[A-z]$/ : /^[A-zåäöÅÄÖ]$/;
       if (e.key === "Enter") {
         submitGuess();
         return;
@@ -345,7 +346,7 @@ export const WordleContextProvider = ({
       } else if (
         currentGuess < guesses.length &&
         guesses[currentGuess].length < wordLength &&
-        e.key.match(/^[A-z]$/)
+        e.key.match(regex)
       ) {
         setGuesses((prevGuesses) => {
           let newGuesses = [...prevGuesses];

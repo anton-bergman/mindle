@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useWordle } from "./WordleContext";
+import { useWordle } from "../context/WordleOrdleContext";
 
 interface BoxProps {
   row: number;
