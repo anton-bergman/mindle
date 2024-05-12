@@ -1,6 +1,10 @@
 import {onSchedule} from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
-import {DocumentData, QueryDocumentSnapshot} from "firebase-admin/firestore";
+import {
+  DocumentData,
+  QueryDocumentSnapshot,
+  QuerySnapshot,
+} from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
 
 admin.initializeApp();
@@ -25,11 +29,24 @@ interface leaderboardEntry {
 }
 
 type leaderboard = leaderboardEntry[];
+
+interface Vocabulary {
+  wordLength: number;
+  words: string[];
+}
+
+interface stepdleData {
+  dailyWord4: string;
+  dailyWord5: string;
+  dailyWord6: string;
+  dailyWord7: string;
+}
+
 /**
  * Choose a daily word for the Wordle game and reset Wordle daily leaderboard.
  * This function runs every day at 02:00.
  */
-export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
+export const chooseDailyWords = onSchedule("every day 22:00", async () => {
   /**
    * Generates a daily word for the specified game type and updates
    * the game data.
@@ -48,12 +65,12 @@ export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
     vocab: string
   ): Promise<void> {
     try {
-      const wordleWordsSnapshot = await admin
+      const wordleWordsSnapshot: DocumentData = await admin
         .firestore()
         .doc(`Vocabularies/${vocab}`)
         .get();
 
-      const dailyWorldeSnapshot = await admin
+      const dailyWorldeSnapshot: DocumentData = await admin
         .firestore()
         .doc(`Games/${gameType}`)
         .get();
@@ -87,6 +104,135 @@ export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
   }
 
   /**
+   * Retrieves the list of four and five-letter words from the
+   * specified vocabulary.
+   *
+   * @param {string} vocab - The name or identifier of the vocabulary
+   * from which to retrieve the words.
+   * @return {Promise<string[]>} A promise that resolves to an array
+   * containing the four and five-letter words.
+   */
+  async function getFourFiveLetterVoacb(vocab: string): Promise<string[]> {
+    const vocabWordsSnapshot: DocumentData = await admin
+      .firestore()
+      .doc(`Vocabularies/${vocab}`)
+      .get();
+    const vocabData: Vocabulary = vocabWordsSnapshot.data();
+    return vocabData.words;
+  }
+
+  /**
+   * Retrieves the list of six and seven-letter words from the
+   * specified vocabulary.
+   *
+   * @param {string} vocab - The name or identifier of the vocabulary
+   * from which to retrieve the words.
+   * @return {Promise<string[]>} A promise that resolves to an array
+   * containing the six and seven-letter words.
+   */
+  async function getSixSevenLetterVocab(vocab: string): Promise<string[]> {
+    const vocabCollection: QuerySnapshot = await admin
+      .firestore()
+      .collection(`Vocabularies/${vocab}/vocabulary`)
+      .get();
+
+    let words: string[] = [];
+    vocabCollection.docs.map((doc: DocumentData) => {
+      const data: Vocabulary = doc.data();
+      words = [...words, ...data.words];
+      return words;
+    });
+    return words;
+  }
+
+  /**
+   * Generates a random word from the given list of words, e
+   * nsuring it is not included in the previousWords array if provided.
+   *
+   * @param {string[]} words - An array containing the list of
+   * words from which to choose.
+   * @param {string[] | undefined} previousWords - An array
+   * containing previously selected words.
+   * @return {string} A randomly selected word.
+   */
+  function generateDailyWord(
+    words: string[],
+    previousWords: string[] | undefined
+  ): string {
+    let randomIndex: number = Math.floor(Math.random() * words.length);
+    let randomWord: string = words[randomIndex];
+
+    while (previousWords?.includes(randomWord)) {
+      randomIndex = Math.floor(Math.random() * words.length);
+      randomWord = words[randomIndex];
+    }
+    return randomWord;
+  }
+
+  /**
+   * Generates daily words for the Stepdle game by selecting
+   * random words from various word lists and updating the
+   * Firestore document.
+   *
+   * @return {Promise<void>} A promise indicating the completion of
+   * the operation.
+   */
+  async function generateDailyStepdleWords(): Promise<void> {
+    try {
+      const fourLetterWords: string[] = await getFourFiveLetterVoacb(
+        "englishWords4"
+      );
+
+      const fiveLetterWords: string[] = await getFourFiveLetterVoacb(
+        "englishWords5"
+      );
+
+      const sixLetterWords = await getSixSevenLetterVocab("englishWords6");
+      const sevenLetterWords = await getSixSevenLetterVocab("englishWords7");
+      const allWords = [
+        fourLetterWords,
+        fiveLetterWords,
+        sixLetterWords,
+        sevenLetterWords,
+      ];
+
+      const stepdleDocRef = admin.firestore().doc("Games/stepdle");
+
+      const stepdleSnapshot = await stepdleDocRef.get();
+      const stepdleData: DocumentData | stepdleData | undefined =
+        stepdleSnapshot.data();
+      const previousWords = stepdleData?.previousWords;
+      const dailyWords: string[] = [];
+      if (previousWords) {
+        const keys: string[] = Object.keys(previousWords).reverse();
+
+        keys.forEach((key, i) => {
+          const currentPreviousWords = previousWords[key];
+          const word = generateDailyWord(allWords[i], currentPreviousWords);
+          dailyWords.push(word);
+
+          if (currentPreviousWords.length === 365) {
+            currentPreviousWords.shift();
+          }
+
+          currentPreviousWords.push(word);
+          previousWords[key] = currentPreviousWords;
+        });
+      }
+
+      stepdleDocRef.update({
+        dailyWord4: dailyWords[0],
+        dailyWord5: dailyWords[1],
+        dailyWord6: dailyWords[2],
+        dailyWord7: dailyWords[3],
+        previousWords: previousWords,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
    * Resets the leaderboard for the Wordle game.
    * This function clears the leaderboard data in the Firestore
    * database, effectively resetting the leaderboard to an empty
@@ -102,6 +248,7 @@ export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
 
   await generateDailyWordleOrdleWord("wordle", "englishWords5");
   await generateDailyWordleOrdleWord("ordle", "swedishWords5");
+  await generateDailyStepdleWords();
   await resetWordleLeaderboard();
 });
 
@@ -114,7 +261,7 @@ export const chooseDailyWordWordle = onSchedule("every day 02:00", async () => {
  * where each key is a user ID and the corresponding value is an array of
  * that user's sessions.
  */
-async function getUserSessions() {
+async function getUserSessions(): Promise<UsersSessions> {
   const db = admin.firestore();
   const gameSessionsSnapshot = await db.collection("/PlayedGames").get();
 
