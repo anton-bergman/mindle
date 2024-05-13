@@ -422,7 +422,10 @@ export const StepdleContextProvider = ({ children }: StepdleProps) => {
       };
 
       const submitGuess = (): void => {
-        if (isWordInVocabulary(guesses[currentGuess])) {
+        if (
+          guesses[currentGuess].length === wordLength &&
+          isWordInVocabulary(guesses[currentGuess])
+        ) {
           setCurrentGuess((prev) => prev + 1);
           updateCurrentTargetWord();
 

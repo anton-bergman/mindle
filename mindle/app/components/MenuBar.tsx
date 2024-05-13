@@ -140,7 +140,7 @@ export default function MenuBar() {
             <DropdownItem
               key="ordle-link"
               className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-text_color text-text_color"
-              description="Comming soon."
+              description="Ordle your way to word mastery"
               startContent={icons.ordle}
               onClick={() => {
                 router.push("./ordle");
@@ -152,7 +152,7 @@ export default function MenuBar() {
             <DropdownItem
               key="stepdle-link"
               className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-text_color text-text_color"
-              description="Comming soon."
+              description="Step up to the challenge"
               startContent={icons.stepdle}
               onClick={() => {
                 router.push("./stepdle");
