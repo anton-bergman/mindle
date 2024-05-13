@@ -32,6 +32,8 @@ export default function Leaderboard() {
     useLocalStorage<DocumentData | null>("LeaderBoardWordle", null);
   const [leaderBoardOrdle, setLeaderBoardOrdle] =
     useLocalStorage<DocumentData | null>("LeaderBoardOrdle", null);
+  const [leaderBoardStepdle, setLeaderBoardStepdle] =
+    useLocalStorage<DocumentData | null>("LeaderBoardStpdle", null);
 
   const columns = ["RANK", "USER", "AVG GUESSES", "AVG TIME"];
   const dailyLeaderboardColumns = ["RANK", "USER", "GUESSES", "TIME"];
@@ -72,9 +74,12 @@ export default function Leaderboard() {
         await fetchLeaderboard("wordle");
       const leaderboardOrdleObject: { leaderboard: LeaderBoard } =
         await fetchLeaderboard("ordle");
+      const leaderboardStepdleObject: { leaderboard: LeaderBoard } =
+        await fetchLeaderboard("stepdle");
       setLeaderBoardGeneral(leaderboardGeneralObject.leaderboard);
       setLeaderBoardWordle(leaderboardWordleObject.leaderboard);
       setLeaderBoardOrdle(leaderboardOrdleObject.leaderboard);
+      setLeaderBoardStepdle(leaderboardStepdleObject.leaderboard);
     };
 
     const unsubGeneral = onSnapshot(
@@ -101,16 +106,33 @@ export default function Leaderboard() {
       }
     });
 
+    const unsubStepdle = onSnapshot(
+      doc(db, "Leaderboards", "stepdle"),
+      (doc) => {
+        const leaderboardData = doc.data();
+        if (leaderboardData) {
+          setLeaderBoardOrdle(leaderboardData.leaderboard);
+        }
+      }
+    );
+
     const unsubscribe = function () {
       unsubGeneral();
       unsubWordle();
       unsubOrdle();
+      unsubStepdle();
     };
 
     loadData();
 
     return () => unsubscribe();
-  }, [setLeaderBoardGeneral, setLeaderBoardWordle, user]);
+  }, [
+    setLeaderBoardGeneral,
+    setLeaderBoardWordle,
+    setLeaderBoardOrdle,
+    setLeaderBoardStepdle,
+    user,
+  ]);
 
   return (
     <div className="flex justify-center h-[calc(100vh-65px)] w-screen bg-gray-800 text-text_color overflow-y-auto">
@@ -139,7 +161,7 @@ export default function Leaderboard() {
                     <TableRow key={entry.user}>
                       <TableCell>{i + 1}</TableCell>
                       <TableCell>{entry.user}</TableCell>
-                      <TableCell>{entry.averageGuesses.toFixed(2)}</TableCell>
+                      <TableCell>{entry.averageGuesses?.toFixed(2)}</TableCell>
                       <TableCell>
                         {formatMilliseconds(entry.averageTime * 1000)}
                       </TableCell>
@@ -231,7 +253,18 @@ export default function Leaderboard() {
               </TableHeader>
 
               <TableBody emptyContent={"No Stepdle games played today."}>
-                {[]}
+                {leaderBoardStepdle?.map(
+                  (entry: LeaderBoardEntry, i: number) => (
+                    <TableRow key={entry.user}>
+                      <TableCell>{i + 1}</TableCell>
+                      <TableCell>{entry.user}</TableCell>
+                      <TableCell>{entry.averageGuesses}</TableCell>
+                      <TableCell>
+                        {formatMilliseconds(entry.averageTime * 1000)}
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
               </TableBody>
             </Table>
           </Tab>

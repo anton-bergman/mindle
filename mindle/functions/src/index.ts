@@ -6,6 +6,7 @@ import {
   QuerySnapshot,
 } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
+import {onRequest} from "firebase-functions/v2/https";
 
 admin.initializeApp();
 interface PlayedGame {
@@ -252,6 +253,27 @@ export const chooseDailyWords = onSchedule("every day 22:00", async () => {
   await resetWordleLeaderboard();
 });
 
+export const test = onRequest(async (request, response) => {
+  const db = admin.firestore();
+  const gameSessionsSnapshot = await db.collection("/PlayedGames").get();
+
+  const userSessions: UsersSessions = {};
+  gameSessionsSnapshot.docs.map((doc: QueryDocumentSnapshot) => {
+    const data: DocumentData | PlayedGame = doc.data();
+    const gameWon = data.wonGame;
+    if (gameWon) {
+      const id = data.userId;
+      if (id in userSessions) {
+        userSessions[id].push(doc.data());
+      } else {
+        userSessions[id] = [doc.data()];
+      }
+    }
+    return userSessions;
+  });
+  console.log(userSessions);
+  response.send("userSessions");
+});
 /**
  * Retrieves user sessions from the Firestore database.
  * This function fetches data from the "PlayedGames" collection
@@ -268,12 +290,15 @@ async function getUserSessions(): Promise<UsersSessions> {
   const userSessions: UsersSessions = {};
 
   gameSessionsSnapshot.docs.map((doc: QueryDocumentSnapshot) => {
-    const data = doc.data();
-    const id = data.userId;
-    if (id in userSessions) {
-      userSessions[id].push(doc.data());
-    } else {
-      userSessions[id] = [doc.data()];
+    const data: DocumentData | PlayedGame = doc.data();
+    const gameWon = data.wonGame;
+    if (gameWon) {
+      const id = data.userId;
+      if (id in userSessions) {
+        userSessions[id].push(doc.data());
+      } else {
+        userSessions[id] = [doc.data()];
+      }
     }
     return userSessions;
   });
@@ -376,14 +401,16 @@ async function createDailyWordleleaderboard(game: string): Promise<void> {
 
     await Promise.all(
       playedGames.map(async (game: PlayedGame) => {
-        const user = (await admin.firestore().doc(game.userId).get()).data();
-        const leaderboardEntry: leaderboardEntry = {
-          user: user?.email,
-          averageGuesses: game.numberOfGuesses,
-          averageTime: (game.endTime - game.startTime) / 1000,
-        };
+        if (game.wonGame) {
+          const user = (await admin.firestore().doc(game.userId).get()).data();
+          const leaderboardEntry: leaderboardEntry = {
+            user: user?.email,
+            averageGuesses: game.numberOfGuesses,
+            averageTime: (game.endTime - game.startTime) / 1000,
+          };
 
-        leaderboard.push(leaderboardEntry);
+          leaderboard.push(leaderboardEntry);
+        }
         return leaderboard;
       })
     );

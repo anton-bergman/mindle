@@ -298,7 +298,7 @@ export const StepdleContextProvider = ({ children }: StepdleProps) => {
         setWordLength(6);
       } else if (guesses.includes(words.dailyWord4)) {
         setCurrentTargetWord(words.dailyWord5);
-        setWordLength(6);
+        setWordLength(5);
       } else {
         setCurrentTargetWord(words.dailyWord4);
         setWordLength(4);
