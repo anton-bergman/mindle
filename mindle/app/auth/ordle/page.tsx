@@ -32,7 +32,7 @@ export default function Wordle() {
         />
       ))}
       <Keyboard />
-      <GameOverPopup />
+      <GameOverPopup gameType="ordle" />
     </div>
   );
 }

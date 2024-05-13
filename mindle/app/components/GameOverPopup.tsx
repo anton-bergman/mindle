@@ -15,7 +15,11 @@ interface TimeObject {
   seconds: string;
 }
 
-export default function GameOverPopup() {
+interface GameOverPopupProps {
+  gameType: string;
+}
+
+export default function GameOverPopup({ gameType }: GameOverPopupProps) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { wordLength, endTime, isGameOver, isGameWon } = useWordle();
 
@@ -104,7 +108,7 @@ export default function GameOverPopup() {
               </ModalHeader>
               <ModalBody className="flex flex-col items-center justify-center mt-2">
                 <div className="flex flex-col items-center justify-center">
-                  <h1>Next Wordle</h1>
+                  <h1>Next {gameType === "ordle" ? "Ordle" : "Wordle"}</h1>
                   <p>
                     {timeToNextGame.hours}:{timeToNextGame.minutes}:
                     {timeToNextGame.seconds}
