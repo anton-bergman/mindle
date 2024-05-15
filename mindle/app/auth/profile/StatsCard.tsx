@@ -105,7 +105,7 @@ export default function StatsCard() {
   }, [setOrdleStats, setStepdleStats, setWordleStats, user]);
 
   return (
-    <div className="flex flex-col my-[-52px] w-1/2">
+    <div className="flex flex-col my-[-52px] min-w-[320px]">
       <Tabs>
         <Tab
           title={

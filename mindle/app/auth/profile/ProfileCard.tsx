@@ -97,19 +97,19 @@ export default function ProfileCard() {
   }, [setProfileStats, user]);
 
   return (
-    <Card className="w-1/2 p-1">
-      <CardHeader className="flex flex-row justify-evenly items-center">
+    <Card className="min-w-[320px] p-1">
+      <CardHeader className="flex flex-row justify-evenly">
         <Avatar
           isBordered
-          className="w-16 h-16"
+          className="min-w-[60px] min-h-[60px] mr-1"
           color="default"
           src={user?.photoURL || ""}
         />
-        <div className="flex flex-col">
-          <h4 className="text-text_color font-medium text-2xl">
+        <div className="flex flex-col w-[calc(100%-60px)] ml-2 whitespace-nowrap">
+          <h4 className="text-text_color font-medium text-2xl overflow-hidden text-ellipsis ">
             {user?.displayName}
           </h4>
-          <p className="text-xs text-white/60 uppercase font-bold">
+          <p className="text-xs text-white/60 uppercase font-bold overflow-hidden text-ellipsis">
             {user?.email}
           </p>
         </div>

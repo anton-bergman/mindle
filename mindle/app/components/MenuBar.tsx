@@ -22,7 +22,7 @@ import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import FormatListNumberedRoundedIcon from "@mui/icons-material/FormatListNumberedRounded";
 import TextFieldsRoundedIcon from "@mui/icons-material/TextFieldsRounded";
 import FormatColorTextRoundedIcon from "@mui/icons-material/FormatColorTextRounded";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function MenuBar() {
@@ -31,6 +31,7 @@ export default function MenuBar() {
   const [selectedTab, setSelectedTab] = useState<string>(
     window.location.pathname
   );
+  const [windowWidth, setWindowWidth] = useState<number>(-1);
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -41,6 +42,20 @@ export default function MenuBar() {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      // setAvatarVisible(window.innerWidth > 640);
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const icons = {
     chevron: (
@@ -86,13 +101,15 @@ export default function MenuBar() {
       onMenuOpenChange={setIsMenuOpen}
       className="bg-primary_background z-[100]"
     >
-      <NavbarContent className="sm:hidden" justify="start">
+      <NavbarContent className="sm:hidden" justify="center">
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
         />
       </NavbarContent>
 
-      <NavbarBrand>
+      <NavbarBrand
+        className={windowWidth > 640 ? "" : "flex items-center justify-center"}
+      >
         <p
           className="font-bold text-inherit cursor-pointer"
           onClick={() => {
@@ -190,52 +207,42 @@ export default function MenuBar() {
           </Link>
         </NavbarItem>
       </NavbarContent>
-      <NavbarContent as="div" justify="end">
-        <Dropdown placement="bottom-end" className="bg-secondary_menubar">
-          {/* TODO: Fix the originalProps-error.
-                    Seem to be some known error with the nextUI component, if you comment out
-                    the <DropdownTrigger></DropdownTrigger> below the error disappears.
-                    Link to issue: https://github.com/nextui-org/nextui/issues/2593
-            */}
-          <DropdownTrigger>
-            <Avatar
-              isBordered
-              as="button"
-              className="transition-transform"
-              color="default"
-              // name="Jason Hughes"
-              size="sm"
-              src={user?.photoURL || ""}
-            />
-          </DropdownTrigger>
-          <DropdownMenu aria-label="Profile Actions" variant="flat">
-            <DropdownItem
-              key="profile"
-              className="h-14 gap-2 data-[hover=true]:bg-zinc-700 data-[hover=true]:text-text_color text-text_color"
-              onClick={() => router.push("./profile")}
-              textValue="user-signed-in-as"
-            >
-              <p className="font-semibold">Signed in as</p>
-              <p className="font-semibold">{user?.email}</p>
-            </DropdownItem>
-            {/* <DropdownItem
-              key="settings"
-              className="data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white"
-            >
-              Settings
-            </DropdownItem> */}
-            <DropdownItem
-              key="logout"
-              className="text-[#f31260]"
-              color="danger"
-              onClick={handleSignOut}
-            >
-              Log Out
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      </NavbarContent>
-      <NavbarMenu className="dark backdrop-blur-xl bg-zinc-900/60">
+      {windowWidth > 640 ? (
+        <NavbarContent as="div" justify="end">
+          <Dropdown placement="bottom-end" className="bg-secondary_menubar">
+            <DropdownTrigger>
+              <Avatar
+                isBordered
+                as="button"
+                className="transition-transform"
+                color="default"
+                size="sm"
+                src={user?.photoURL || ""}
+              />
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Profile Actions" variant="flat">
+              <DropdownItem
+                key="profile"
+                className="h-14 gap-2 data-[hover=true]:bg-zinc-700 data-[hover=true]:text-text_color text-text_color"
+                onClick={() => router.push("./profile")}
+                textValue="user-signed-in-as"
+              >
+                <p className="font-semibold">Signed in as</p>
+                <p className="font-semibold">{user?.email}</p>
+              </DropdownItem>
+              <DropdownItem
+                key="logout"
+                className="text-[#f31260]"
+                color="danger"
+                onClick={handleSignOut}
+              >
+                Log Out
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </NavbarContent>
+      ) : null}
+      <NavbarMenu className="dark backdrop-blur-xl bg-zinc-900/60 text-text_color">
         <NavbarMenuItem key="wordle">
           <Link
             className="w-full"
@@ -292,19 +299,9 @@ export default function MenuBar() {
           </Link>
         </NavbarMenuItem>
         <NavbarMenuItem key="logout">
-          {/* <Link
-            className="w-full hover:cursor-pointer"
-            color="danger"
-            //size="lg"
-            onClick={handleSignOut}
-          >
-            Log Out
-          </Link> */}
           <div
             className="w-full hover:cursor-pointer text-[#f31260]"
-            //size="lg"
             onClick={handleSignOut}
-            //href={""}
           >
             Log Out
           </div>

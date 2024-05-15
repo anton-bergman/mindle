@@ -61,7 +61,7 @@ export default function Keyboard() {
   };
 
   return (
-    <div className="mt-1">
+    <div className="mt-1 w-full">
       {englishLayout.map((row, i) => (
         <div key={i} className="flex justify-center mt-0 mb-2">
           {row.split("").map((letter, j) => {
@@ -77,7 +77,7 @@ export default function Keyboard() {
                 <div
                   key={j}
                   id="keyboard-enter"
-                  className={`flex h-14 w-16 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xs font-bold cursor-pointer`}
+                  className={`flex h-12 sm:h-14 w-14 sm:w-16 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xs font-bold cursor-pointer`}
                   onClick={() => handleClick(letter)}
                 >
                   enter
@@ -87,7 +87,7 @@ export default function Keyboard() {
               return (
                 <div
                   key={j}
-                  className={`flex h-14 w-16 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xs font-bold cursor-pointer`}
+                  className={`flex h-12 sm:h-14 w-14 sm:w-16 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xs font-bold cursor-pointer`}
                   onClick={() => handleClick(letter)}
                 >
                   <BackspaceIcon></BackspaceIcon>
@@ -97,7 +97,7 @@ export default function Keyboard() {
               return (
                 <div
                   key={j}
-                  className={`flex h-14 w-11 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xl font-bold cursor-pointer`}
+                  className={`flex h-12 sm:h-14 w-9 sm:w-11 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xl font-bold cursor-pointer`}
                   onClick={() => handleClick(letter)}
                 >
                   {letter}
