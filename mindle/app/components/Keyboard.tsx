@@ -87,7 +87,7 @@ export default function Keyboard() {
               return (
                 <div
                   key={j}
-                  className={`flex h-12 sm:h-14 w-9 sm:w-11 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-sm sm:text-xl font-bold cursor-pointer`}
+                  className={`flex h-12 sm:h-14 w-9 sm:w-11 ${backgroundColor} items-center justify-center mr-1.5 rounded uppercase text-xl font-bold cursor-pointer`}
                   onClick={() => handleClick(letter)}
                 >
                   {letter}
