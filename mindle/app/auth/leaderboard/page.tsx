@@ -153,7 +153,7 @@ export default function Leaderboard() {
               selectionMode="single"
               color="default"
               selectedKeys={user?.email ? [user.email] : [""]}
-              className="max-h-[75vh] overflow-hidden"
+              className="sm:max-h-[75vh] max-h-[60vh] overflow-hidden"
             >
               <TableHeader columns={["User"]}>
                 {columns.map((column, i) => (
@@ -194,6 +194,7 @@ export default function Leaderboard() {
               selectionMode="single"
               color="default"
               selectedKeys={user?.email ? [user.email] : [""]}
+              className="sm:max-h-[75vh] max-h-[60vh] overflow-hidden"
             >
               <TableHeader columns={["User"]}>
                 {dailyLeaderboardColumns.map((column, i) => (
@@ -234,6 +235,7 @@ export default function Leaderboard() {
               selectionMode="single"
               color="default"
               selectedKeys={user?.email ? [user.email] : [""]}
+              className="sm:max-h-[75vh] max-h-[60vh] overflow-hidden"
             >
               <TableHeader columns={["User"]}>
                 {dailyLeaderboardColumns.map((column, i) => (
@@ -272,6 +274,7 @@ export default function Leaderboard() {
               selectionMode="single"
               color="default"
               selectedKeys={user?.email ? [user.email] : [""]}
+              className="sm:max-h-[75vh] max-h-[60vh] overflow-hidden"
             >
               <TableHeader columns={["User"]}>
                 {dailyLeaderboardColumns.map((column, i) => (
