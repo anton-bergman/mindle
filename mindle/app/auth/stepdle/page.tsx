@@ -59,7 +59,7 @@ export default function Stepdle() {
         Steps Left: {maxNumGuesses - currentGuess}
       </p>
       <div
-        className="relative justify-center sm:h-[450px] h-[300px] overflow-auto mb-4 px-4"
+        className="relative justify-center sm:h-[450px] h-[350px] overflow-auto mb-4 px-4"
         ref={scrollableRef}
       >
         <div className="flex flex-col items-center">
