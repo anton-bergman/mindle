@@ -10,6 +10,8 @@ import FormatColorTextRoundedIcon from "@mui/icons-material/FormatColorTextRound
 import {
   Card,
   CardBody,
+  Radio,
+  RadioGroup,
   Tab,
   Table,
   TableBody,
@@ -136,8 +138,8 @@ export default function Leaderboard() {
 
   return (
     <div className="flex justify-center h-[calc(100vh-65px)] w-screen bg-gray-800 text-text_color overflow-y-auto">
-      <div className="mt-8 w-2/3">
-        <Tabs>
+      <div className="mt-8 w-2/3 min-w-[365px]">
+        <Tabs className="w-full">
           <Tab
             title={
               <div className="flex items-center space-x-2">
@@ -146,7 +148,13 @@ export default function Leaderboard() {
               </div>
             }
           >
-            <Table aria-label="Example table with custom cells">
+            <Table
+              aria-label="Example table with custom cells"
+              selectionMode="single"
+              color="default"
+              selectedKeys={user?.email ? [user.email] : [""]}
+              className="max-h-[75vh] overflow-hidden"
+            >
               <TableHeader columns={["User"]}>
                 {columns.map((column, i) => (
                   <TableColumn key={i} align="start">
@@ -160,7 +168,9 @@ export default function Leaderboard() {
                   (entry: LeaderBoardEntry, i: number) => (
                     <TableRow key={entry.user}>
                       <TableCell>{i + 1}</TableCell>
-                      <TableCell>{entry.user}</TableCell>
+                      <TableCell className="md:max-w-full max-w-[75px] overflow-hidden text-ellipsis">
+                        {entry.user}
+                      </TableCell>
                       <TableCell>{entry.averageGuesses?.toFixed(2)}</TableCell>
                       <TableCell>
                         {formatMilliseconds(entry.averageTime * 1000)}
@@ -179,7 +189,12 @@ export default function Leaderboard() {
               </div>
             }
           >
-            <Table aria-label="Example table with custom cells">
+            <Table
+              aria-label="Example table with custom cells"
+              selectionMode="single"
+              color="default"
+              selectedKeys={user?.email ? [user.email] : [""]}
+            >
               <TableHeader columns={["User"]}>
                 {dailyLeaderboardColumns.map((column, i) => (
                   <TableColumn key={i} align="start">
@@ -193,7 +208,9 @@ export default function Leaderboard() {
                   (entry: LeaderBoardEntry, i: number) => (
                     <TableRow key={entry.user}>
                       <TableCell>{i + 1}</TableCell>
-                      <TableCell>{entry.user}</TableCell>
+                      <TableCell className="md:max-w-full max-w-[75px] overflow-hidden text-ellipsis">
+                        {entry.user}
+                      </TableCell>
                       <TableCell>{entry.averageGuesses}</TableCell>
                       <TableCell>
                         {formatMilliseconds(entry.averageTime * 1000)}
@@ -212,7 +229,12 @@ export default function Leaderboard() {
               </div>
             }
           >
-            <Table aria-label="Example table with custom cells">
+            <Table
+              aria-label="Example table with custom cells"
+              selectionMode="single"
+              color="default"
+              selectedKeys={user?.email ? [user.email] : [""]}
+            >
               <TableHeader columns={["User"]}>
                 {dailyLeaderboardColumns.map((column, i) => (
                   <TableColumn key={i} align="start">
@@ -225,7 +247,9 @@ export default function Leaderboard() {
                 {leaderBoardOrdle?.map((entry: LeaderBoardEntry, i: number) => (
                   <TableRow key={entry.user}>
                     <TableCell>{i + 1}</TableCell>
-                    <TableCell>{entry.user}</TableCell>
+                    <TableCell className="md:max-w-full max-w-[75px] overflow-hidden text-ellipsis">
+                      {entry.user}
+                    </TableCell>
                     <TableCell>{entry.averageGuesses}</TableCell>
                     <TableCell>
                       {formatMilliseconds(entry.averageTime * 1000)}
@@ -243,7 +267,12 @@ export default function Leaderboard() {
               </div>
             }
           >
-            <Table aria-label="Example table with custom cells">
+            <Table
+              aria-label="Example table with custom cells"
+              selectionMode="single"
+              color="default"
+              selectedKeys={user?.email ? [user.email] : [""]}
+            >
               <TableHeader columns={["User"]}>
                 {dailyLeaderboardColumns.map((column, i) => (
                   <TableColumn key={i} align="start">
@@ -257,7 +286,9 @@ export default function Leaderboard() {
                   (entry: LeaderBoardEntry, i: number) => (
                     <TableRow key={entry.user}>
                       <TableCell>{i + 1}</TableCell>
-                      <TableCell>{entry.user}</TableCell>
+                      <TableCell className="md:max-w-full max-w-[75px] overflow-hidden text-ellipsis">
+                        {entry.user}
+                      </TableCell>
                       <TableCell>{entry.averageGuesses}</TableCell>
                       <TableCell>
                         {formatMilliseconds(entry.averageTime * 1000)}

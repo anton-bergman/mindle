@@ -12,7 +12,7 @@ export default function Profile() {
             <ProfileCard />
             <StatsCard />
           </div>
-          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-5 px-10">
+          <div className="flex sm:visible hidden flex-col sm:flex-row items-center sm:items-start justify-center gap-5 px-10">
             <GameCard title="Wordle" subTitle="A NEW WORD EACH DAY" />
             <GameCard title="Ordle" subTitle="THE SWEDISH WORDLE" />
             <GameCard title="Stepdle" subTitle="ONE STEP FURTHER" />

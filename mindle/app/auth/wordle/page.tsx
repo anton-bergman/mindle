@@ -19,7 +19,7 @@ export default function Wordle() {
   }, [handleKeyup, isGameOver]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-[calc(100vh-65px)] bg-gray-900 text-text_color">
+    <div className="flex flex-col items-center h-[calc(100vh-65px)] bg-gray-900 text-text_color pt-[10vh]">
       {/* TODO: Above, the values 65px must always equal the height of the navbar */}
       {guesses.map((_, i) => (
         <Guess
