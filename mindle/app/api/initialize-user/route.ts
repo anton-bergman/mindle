@@ -47,17 +47,19 @@ export async function POST(req: NextRequest) {
 
         const user: User = userDoc.data() as User;
 
-        const query: Query = db
-          .collection("PlayedGames")
-          .where("startTime", ">=", yesterdayStartTime)
-          .where("startTime", "<=", yesterdayEndTime);
+        if (user.lastLogin <= yesterdayEndTime) {
+          const query: Query = db
+            .collection("PlayedGames")
+            .where("startTime", ">=", yesterdayStartTime)
+            .where("startTime", "<=", yesterdayEndTime);
 
-        // Execute query
-        const snapshot = await query.get();
-        const hasPlayedYesterday: boolean = !snapshot.empty;
-        if (!hasPlayedYesterday) {
-          const newUser: User = { ...user, consecutiveDaysPlayed: 0 };
-          await userRef.set(newUser);
+          // Execute query
+          const snapshot = await query.get();
+          const hasPlayedYesterday: boolean = !snapshot.empty;
+          if (!hasPlayedYesterday) {
+            const newUser: User = { ...user, consecutiveDaysPlayed: 0 };
+            await userRef.set(newUser);
+          }
         }
       }
 
