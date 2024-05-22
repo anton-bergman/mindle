@@ -39,13 +39,20 @@ interface User {
   lastLogin: number;
 }
 
+interface GeneralLeaderboardEntry {
+  user: string;
+  averageWinRate: number;
+  averageTime: number;
+}
+
 interface LeaderBoardEntry {
   user: string;
   averageGuesses: number;
   averageTime: number;
 }
 
-type LeaderBoard = Array<LeaderBoardEntry>;
+type LeaderBoard = Array<LeaderBoardEntry> | Array<GeneralLeaderboardEntry>;
+// type LeaderBoard = Array<generalLeaderboardEntry | LeaderBoardEntry>;
 
 export type {
   Game,
@@ -56,4 +63,5 @@ export type {
   User,
   LeaderBoardEntry,
   LeaderBoard,
+  GeneralLeaderboardEntry,
 };

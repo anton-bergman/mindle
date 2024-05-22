@@ -22,7 +22,11 @@ import {
   Tabs,
 } from "@nextui-org/react";
 import { useAuth } from "@/app/context/AuthContext";
-import { LeaderBoard, LeaderBoardEntry } from "@/app/api/interfaces";
+import {
+  LeaderBoard,
+  LeaderBoardEntry,
+  GeneralLeaderboardEntry,
+} from "@/app/api/interfaces";
 import useLocalStorage from "use-local-storage";
 import { formatMilliseconds } from "@/app/utils";
 
@@ -38,6 +42,7 @@ export default function Leaderboard() {
     useLocalStorage<DocumentData | null>("LeaderBoardStpdle", null);
 
   const columns = ["RANK", "USER", "AVG GUESSES", "AVG TIME"];
+  const columnsGeneral = ["RANK", "USER", "AVG WIN RATE", "AVG TIME"];
   const dailyLeaderboardColumns = ["RANK", "USER", "GUESSES", "TIME"];
 
   useEffect(() => {
@@ -156,7 +161,7 @@ export default function Leaderboard() {
               className="sm:max-h-[75vh] max-h-[60vh] overflow-hidden"
             >
               <TableHeader columns={["User"]}>
-                {columns.map((column, i) => (
+                {columnsGeneral.map((column, i) => (
                   <TableColumn key={i} align="start">
                     {column}
                   </TableColumn>
@@ -165,13 +170,13 @@ export default function Leaderboard() {
 
               <TableBody emptyContent={"No games played."}>
                 {leaderBoardGeneral?.map(
-                  (entry: LeaderBoardEntry, i: number) => (
+                  (entry: GeneralLeaderboardEntry, i: number) => (
                     <TableRow key={entry.user}>
                       <TableCell>{i + 1}</TableCell>
                       <TableCell className="md:max-w-full max-w-[75px] overflow-hidden text-ellipsis">
                         {entry.user}
                       </TableCell>
-                      <TableCell>{entry.averageGuesses?.toFixed(2)}</TableCell>
+                      <TableCell>{entry.averageWinRate?.toFixed(2)}</TableCell>
                       <TableCell>
                         {formatMilliseconds(entry.averageTime * 1000)}
                       </TableCell>
