@@ -6,7 +6,6 @@ import {
   QuerySnapshot,
 } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
-import {onRequest} from "firebase-functions/v2/https";
 
 admin.initializeApp();
 
@@ -280,13 +279,6 @@ export const chooseDailyWords = onSchedule("every day 22:00", async () => {
   await resetWordleLeaderboard();
 });
 
-export const test = onRequest(async (request, response) => {
-  const userStats: UserStats = await getUserStats();
-  const leaderboard: generalLeaderboard = createGeneralLeaderboard(userStats);
-  console.log(leaderboard);
-  response.send("userSessions");
-});
-
 /**
  * Generates a general leaderboard based on user statistics.
  *
@@ -349,36 +341,6 @@ function createGeneralLeaderboard(userStats: UserStats): generalLeaderboard {
   return leaderboard;
 }
 /**
- * Retrieves user sessions from the Firestore database.
- * This function fetches data from the "PlayedGames" collection
- * and organizes it into a dictionary where each user's sessions
- * are grouped by their user ID.
- * @return {Promise<UsersSessions>} A promise that resolves to a dictionary
- * where each key is a user ID and the corresponding value is an array of
- * that user's sessions.
- */
-// async function getUserSessions(): Promise<UsersSessions> {
-//   const db = admin.firestore();
-//   const gameSessionsSnapshot = await db.collection("/PlayedGames").get();
-
-//   const userSessions: UsersSessions = {};
-
-//   gameSessionsSnapshot.docs.map((doc: QueryDocumentSnapshot) => {
-//     const data: DocumentData | PlayedGame = doc.data();
-//     const gameWon = data.wonGame;
-//     if (gameWon) {
-//       const id = data.userId;
-//       if (id in userSessions) {
-//         userSessions[id].push(doc.data());
-//       } else {
-//         userSessions[id] = [doc.data()];
-//       }
-//     }
-//     return userSessions;
-//   });
-//   return userSessions;
-// }
-/**
  * Retrieves user statistics from the "Users" collection
  * in Firestore.
  *
@@ -435,44 +397,6 @@ async function getUserStats(): Promise<UserStats> {
   );
   return userStats;
 }
-/**
- * Create leaderboard when a new game is played.
- * This function triggers when a new document is created in the
- * PlayedGames collection.
- * @param {UsersSessions} userSessions - The user sessions data.
- */
-// async function createDailyleaderboard(userSessions: UsersSessions) {
-//   const db = admin.firestore();
-//   const leaderboard: dailyLeaderboard = [];
-
-//   await Promise.all(
-//     Object.keys(userSessions).map(async (userPath) => {
-//       const userSnapshot = await db.doc(userPath).get();
-//       const user: DocumentData | undefined = userSnapshot.data();
-
-//       let numberOfGuess = 0;
-//       let numberOfGames = 0;
-//       let totalTime = 0;
-
-//       userSessions[userPath].forEach((gameSession) => {
-//         numberOfGuess += gameSession.numberOfGuesses;
-//         numberOfGames += 1;
-//         totalTime += gameSession.endTime - gameSession.startTime;
-//       });
-
-//       const averageGuesses = numberOfGuess / numberOfGames;
-//       const averageTime = totalTime / (numberOfGames * 1000);
-//       const leaderboardEntry: dailyLeaderboardEntry = {
-//         user: user?.email,
-//         averageGuesses: averageGuesses,
-//         averageTime: averageTime,
-//       };
-
-//       leaderboard.push(leaderboardEntry);
-//     })
-//   );
-//   return leaderboard;
-// }
 
 /**
  * Creates the general leaderboard based on user sessions data.
