@@ -50,12 +50,14 @@ export async function POST(req: NextRequest) {
         if (user.lastLogin <= yesterdayEndTime) {
           const query: Query = db
             .collection("PlayedGames")
+            .where("userId", "==", `Users/${userId}`)
             .where("startTime", ">=", yesterdayStartTime)
             .where("startTime", "<=", yesterdayEndTime);
 
           // Execute query
           const snapshot = await query.get();
           const hasPlayedYesterday: boolean = !snapshot.empty;
+
           if (!hasPlayedYesterday) {
             user = { ...user, consecutiveDaysPlayed: 0 };
           }
