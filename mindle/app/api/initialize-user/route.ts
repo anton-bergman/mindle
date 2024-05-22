@@ -1,8 +1,13 @@
 import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/app/api/firebaseAdmin";
-import { getDayEnd, verifyAuthToken } from "@/app/api/utils";
+import {
+  getDayEnd,
+  getYesterdayStartUnixSwedishTime,
+  verifyAuthToken,
+} from "@/app/api/utils";
 import { DecodedIdToken } from "firebase-admin/auth";
 import { User, GameStats } from "@/app/api/interfaces";
+import { Query } from "firebase-admin/firestore";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,7 +16,8 @@ export async function POST(req: NextRequest) {
 
     if (decodedUser) {
       const userId: string = decodedUser.uid;
-      const userDoc = await db.doc(`/Users/${userId}`).get();
+      const userRef = db.doc(`/Users/${userId}`);
+      const userDoc = await userRef.get();
 
       if (
         !userDoc.exists &&
@@ -27,10 +33,32 @@ export async function POST(req: NextRequest) {
           lastLogin: Date.now(),
         };
         // Create new user document
-        const newUserDoc = db.collection("Users").doc(decodedUser.uid);
+        const newUserRef = db.collection("Users").doc(decodedUser.uid);
 
         // Write to the new user document
-        await newUserDoc.set(user);
+        await newUserRef.set(user);
+      }
+
+      if (userDoc.exists) {
+        // Update consecutive days played
+
+        const yesterdayStartTime: number = getYesterdayStartUnixSwedishTime();
+        const yesterdayEndTime: number = getDayEnd(yesterdayStartTime);
+
+        const user: User = userDoc.data() as User;
+
+        const query: Query = db
+          .collection("PlayedGames")
+          .where("startTime", ">=", yesterdayStartTime)
+          .where("startTime", "<=", yesterdayEndTime);
+
+        // Execute query
+        const snapshot = await query.get();
+        const hasPlayedYesterday: boolean = !snapshot.empty;
+        if (!hasPlayedYesterday) {
+          const newUser: User = { ...user, consecutiveDaysPlayed: 0 };
+          await userRef.set(newUser);
+        }
       }
 
       const gameDocs = await db.collection("Games").get();

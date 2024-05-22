@@ -55,4 +55,4 @@ function getYesterdayStartUnixSwedishTime(): number {
   return yesterday.getTime() + 2 * 60 * 60 * 1000; // Add 2 hours for Swedish time zone
 }
 
-export { verifyAuthToken, getDayEnd };
+export { verifyAuthToken, getDayEnd, getYesterdayStartUnixSwedishTime };
