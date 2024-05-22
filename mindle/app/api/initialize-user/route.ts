@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
         const yesterdayStartTime: number = getYesterdayStartUnixSwedishTime();
         const yesterdayEndTime: number = getDayEnd(yesterdayStartTime);
 
-        const user: User = userDoc.data() as User;
+        let user: User = userDoc.data() as User;
 
         if (user.lastLogin <= yesterdayEndTime) {
           const query: Query = db
@@ -57,10 +57,13 @@ export async function POST(req: NextRequest) {
           const snapshot = await query.get();
           const hasPlayedYesterday: boolean = !snapshot.empty;
           if (!hasPlayedYesterday) {
-            const newUser: User = { ...user, consecutiveDaysPlayed: 0 };
-            await userRef.set(newUser);
+            user = { ...user, consecutiveDaysPlayed: 0 };
           }
         }
+
+        // Update lastLogin time
+        user = { ...user, lastLogin: Date.now() };
+        await userRef.set(user);
       }
 
       const gameDocs = await db.collection("Games").get();
