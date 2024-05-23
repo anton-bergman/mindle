@@ -159,6 +159,7 @@ export default function Leaderboard() {
               color="default"
               selectedKeys={user?.email ? [user.email] : [""]}
               className="sm:max-h-[75vh] max-h-[60vh] overflow-hidden"
+              isHeaderSticky
             >
               <TableHeader columns={["User"]}>
                 {columnsGeneral.map((column, i) => (
@@ -200,6 +201,7 @@ export default function Leaderboard() {
               color="default"
               selectedKeys={user?.email ? [user.email] : [""]}
               className="sm:max-h-[75vh] max-h-[60vh] overflow-hidden"
+              isHeaderSticky
             >
               <TableHeader columns={["User"]}>
                 {dailyLeaderboardColumns.map((column, i) => (
@@ -241,6 +243,7 @@ export default function Leaderboard() {
               color="default"
               selectedKeys={user?.email ? [user.email] : [""]}
               className="sm:max-h-[75vh] max-h-[60vh] overflow-hidden"
+              isHeaderSticky
             >
               <TableHeader columns={["User"]}>
                 {dailyLeaderboardColumns.map((column, i) => (
