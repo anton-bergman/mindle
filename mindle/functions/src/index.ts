@@ -252,13 +252,13 @@ export const chooseDailyWords = onSchedule("every day 22:00", async () => {
   }
 
   /**
-   * Resets the leaderboard for the Wordle game.
+   * Resets the leaderboard for the all daily games.
    * This function clears the leaderboard data in the Firestore
    * database, effectively resetting the leaderboard to an empty
    * array. @return {Promise<void>} A promise indicating the completion
    * of the operation.
    */
-  async function resetWordleLeaderboard(): Promise<void> {
+  async function resetDailyLeaderboards(): Promise<void> {
     await admin
       .firestore()
       .doc("/Leaderboards/wordle")
@@ -276,7 +276,7 @@ export const chooseDailyWords = onSchedule("every day 22:00", async () => {
   await generateDailyWordleOrdleWord("wordle", "englishWords5");
   await generateDailyWordleOrdleWord("ordle", "swedishWords5");
   await generateDailyStepdleWords();
-  await resetWordleLeaderboard();
+  await resetDailyLeaderboards();
 });
 
 /**
@@ -384,7 +384,7 @@ async function getUserStats(): Promise<UserStats> {
         .get();
       const stats: Stats[] = [];
       await Promise.all(
-        statsSnap.docs.map(async (doc) => {
+        statsSnap.docs.map((doc) => {
           const statsData: Stats = doc.data() as Stats;
           stats.push(statsData);
           return stats;
