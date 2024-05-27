@@ -20,7 +20,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }, [router, userLoaded]);
 
   return loading ? (
-    <div className="flex items-center justify-center min-h-screen bg-primary_background">
+    <div className="flex items-center justify-center min-h-screen bg-page_background">
       <Spinner size="lg" />
     </div>
   ) : (
