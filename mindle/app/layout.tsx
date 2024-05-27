@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <NextUIProvider>
-          <main className="dark text-foreground bg-background">
+          <main className="dark text-foreground bg-page_background">
             <AuthContextProvider>{children}</AuthContextProvider>
           </main>
         </NextUIProvider>

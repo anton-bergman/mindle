@@ -15,8 +15,9 @@ const config: Config = {
         secondary_menubar: "#282828",
         text_color: "#FFFFFF",
         google_text: "#858585",
-        github_btn: "#333333",
+        github_btn: "#1f1f1f",
         keyboard: "#818384",
+        page_background: "#1e2534",
       },
       animation: {
         vflip: "flipVertical 1s",

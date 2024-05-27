@@ -5,7 +5,7 @@ import GameCard from "./GameCard";
 
 export default function Profile() {
   return (
-    <div className="flex justify-center min-h-[calc(100vh-65px)] h-full w-full bg-gray-800 text-text_color">
+    <div className="flex justify-center min-h-[calc(100vh-65px)] h-full w-full bg-page_background text-text_color">
       <div className="flex flex-col h-fit max-w-[760px] mt-[80px]">
         <div className="flex flex-col gap-16">
           <div className="flex flex-col justify-center sm:flex-row gap-20 sm:gap-5 items-center sm:items-start">

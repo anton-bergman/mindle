@@ -37,7 +37,7 @@ export default function SignIn() {
   }, [loading, router, user, userLoaded]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-page_background text-white">
       <Image
         className="m-3 w-auto h-40"
         src={mindleLogo}

@@ -142,7 +142,7 @@ export default function Leaderboard() {
   ]);
 
   return (
-    <div className="flex justify-center h-[calc(100vh-65px)] w-screen bg-gray-800 text-text_color overflow-y-auto">
+    <div className="flex justify-center h-[calc(100vh-65px)] w-screen bg-page_background text-text_color overflow-y-auto">
       <div className="mt-8 w-[85vw] min-w-[365px] md:min-w-[650px] max-w-[800px]">
         <Tabs className="w-full">
           <Tab

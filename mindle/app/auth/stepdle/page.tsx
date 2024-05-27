@@ -54,7 +54,7 @@ export default function Stepdle() {
   }, [currentGuess, currentTargetWord.length]);
 
   return (
-    <div className="flex flex-col items-center h-[calc(100vh-65px)] bg-gray-900 text-text_color pt-3">
+    <div className="flex flex-col items-center h-[calc(100vh-65px)] bg-page_background text-text_color pt-3">
       <p className="text-xl font-semibold mb-3">
         Steps Left: {maxNumGuesses - currentGuess}
       </p>
