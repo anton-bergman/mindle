@@ -177,7 +177,9 @@ export default function Leaderboard() {
                       <TableCell className="md:max-w-full max-w-[75px] overflow-hidden text-ellipsis">
                         {entry.user}
                       </TableCell>
-                      <TableCell>{entry.averageWinRate.toFixed(2)}</TableCell>
+                      <TableCell>
+                        {(entry.averageWinRate * 100).toFixed(0)}%
+                      </TableCell>
                       <TableCell>
                         {formatMilliseconds(entry.averageTime * 1000)}
                       </TableCell>
