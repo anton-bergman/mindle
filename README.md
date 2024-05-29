@@ -1,5 +1,10 @@
 # Mindle | A Wordle type word game
 
+## Examination
+- **Final project screencast:** [mindle-screencast](https://drive.google.com/file/d/1yFdWvYwXUbZHPhL_L6M96b2BODrbx_6f/view?usp=sharing)
+- **Individual screencast Anton:**
+- **Individual screencast Shamil:**
+
 ## Project Vision
 
 Mindle aims to create a combination of the popular word-guessing games Wordle, Ordel (Swedish version of Wordle), Stepdle, and potentially Worldle. This application will allow users to engage in word-guessing challenges, track their statistics, compete with others. The primary focus is to provide an enjoyable and challenging experience for users who are fans of word games.
