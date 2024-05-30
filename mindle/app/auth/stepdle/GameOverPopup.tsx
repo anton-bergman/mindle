@@ -7,7 +7,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
-import { useStepdle } from "./StepdleContext";
+import { useStepdle } from "../../context/StepdleContext";
 
 interface TimeObject {
   hours: string;

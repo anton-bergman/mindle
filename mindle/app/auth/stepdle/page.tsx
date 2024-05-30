@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { useStepdle } from "./StepdleContext";
+import { useStepdle } from "../../context/StepdleContext";
 import Guess from "./Guess";
 import Keyboard from "./Keyboard";
 import GameOverPopup from "./GameOverPopup";

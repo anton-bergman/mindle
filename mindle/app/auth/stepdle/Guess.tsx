@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Box from "./Box";
-import { useStepdle } from "./StepdleContext";
+import { useStepdle } from "../../context/StepdleContext";
 
 interface GuessProps {
   row: number;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useStepdle } from "./StepdleContext";
+import { useStepdle } from "../../context/StepdleContext";
 import { calculateBackgroundColor } from "@/app/utils";
 
 interface BoxProps {

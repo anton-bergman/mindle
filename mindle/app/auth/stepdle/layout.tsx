@@ -1,5 +1,5 @@
 "use client";
-import { StepdleContextProvider } from "./StepdleContext";
+import { StepdleContextProvider } from "../../context/StepdleContext";
 
 export default function AuthLayout({
   children,
