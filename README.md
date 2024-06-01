@@ -3,7 +3,7 @@
 ## Examination
 - **Final project screencast:** [mindle-screencast](https://drive.google.com/file/d/1yFdWvYwXUbZHPhL_L6M96b2BODrbx_6f/view?usp=sharing)
 - **Individual screencast Anton:**
-- **Individual screencast Shamil:**
+- **Individual screencast Shamil:** [Shamil-screencast](https://drive.google.com/file/d/17R0k94AaVLE-hqRv8phFrVHuzFZcBvCN/view?usp=sharing)
 
 ## Project Vision
 
