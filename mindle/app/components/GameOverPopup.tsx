@@ -21,7 +21,7 @@ interface GameOverPopupProps {
 
 export default function GameOverPopup({ gameType }: GameOverPopupProps) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { wordLength, endTime, isGameOver, isGameWon } = useWordle();
+  const { wordLength, endTime, isGameOver, isGameWon, word } = useWordle();
 
   const unixToTimeObject = (unixTime: number): TimeObject => {
     const hoursUnix: number = Math.floor((unixTime / (1000 * 60 * 60)) % 24);
@@ -108,6 +108,9 @@ export default function GameOverPopup({ gameType }: GameOverPopupProps) {
               </ModalHeader>
               <ModalBody className="flex flex-col items-center justify-center mt-2">
                 <div className="flex flex-col items-center justify-center">
+                  {isGameWon ? null : (
+                    <h1 className="mb-3">Daily Word: {word.toUpperCase()}</h1>
+                  )}
                   <h1>Next {gameType === "ordle" ? "Ordle" : "Wordle"}</h1>
                   <p>
                     {timeToNextGame.hours}:{timeToNextGame.minutes}:
